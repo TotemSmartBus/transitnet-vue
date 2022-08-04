@@ -159,12 +159,13 @@ import BusTime_Chart from "@/components/BusTime_Chart";
 import BusSpeed_Chart from "@/components/BusSpeed_Chart";
 import BusTrip_Chart from "@/components/BusTrip_Chart"
 import * as turf from "@turf/turf";
+import socket from '@/components/socket.js'
 export default {
   name: "MapVisual",
   components: {BusTrip_Chart, FlipClock, BusRoute_Chart, BusTime_Chart, BusSpeed_Chart},
   data() {
     return {
-      ak: 'wS6oFNUtxQkjV7NsMd5iyNn2ydw2XlmE',
+      ak: 'g5f0bc3uZ0mKzHptwS1ugqMQ',
       activeName: 'first',
       trajData: {
         trajectories: [],
@@ -264,6 +265,7 @@ export default {
       }, 500);
     });
     _this.showLegend();
+    this.initSocket()
   },
   computed: {},
   methods: {
@@ -1213,44 +1215,44 @@ export default {
        * @get, url: /realTime/?curTime={realTimeDate+realTimeTime}
        * @dataType List<RealTimeDataVo>
        */
-      await _this.$axios.get('/realTime/?curTime=' + _this.realTimeDate + ' ' + _this.realTimeTime).then((response) => {
-        if(response && response.status === 200) {
-          let realTimeVehicleList = response.data;
-          realTimeVehicleList.forEach((realTimeVehicle) => { // {point speed}
-            let tempVehicle = realTimeVehicle.point;
-            let tempSpeed = window.isNaN(realTimeVehicle.speed) ? 0 : realTimeVehicle.speed.toFixed(2);
-            if(_this.visualVehicles.vehicleIds.indexOf(tempVehicle.vehicleId) === -1) { //not exist
-              _this.visualVehicles.vehicleIds.push(tempVehicle.vehicleId);
-              _this.visualVehicles.speeds.push(tempSpeed);
-              _this.visualVehicles.points.push(new BMap.Point(tempVehicle.lon, tempVehicle.lat));
-              _this.visualVehicles.bearings.push(tempVehicle.bearing);
-              _this.visualVehicles.vehicleInfos.push({routeId: tempVehicle.routeId, agencyId: tempVehicle.agencyId,
-                nextStop: tempVehicle.nextStop, speed: tempSpeed, recordedTime: tempVehicle.recordedTime, vehicleId: tempVehicle.vehicleId});
-            } else {
-              let curVIdx = _this.visualVehicles.vehicleIds.indexOf(tempVehicle.vehicleId);
-              //remove the vehicle already arrival the end
-              if(tempVehicle.nextStop === "") _this.removeOneVehicle_visualVehicles(curVIdx);
-              else {
-                _this.visualVehicles.points[curVIdx] = new BMap.Point(tempVehicle.lon, tempVehicle.lat);
-                _this.visualVehicles.bearings[curVIdx] = tempVehicle.bearing;
-                _this.visualVehicles.speeds[curVIdx] = tempSpeed;
-                _this.visualVehicles.vehicleInfos[curVIdx] = {routeId: tempVehicle.routeId, agencyId: tempVehicle.agencyId,
-                  nextStop: tempVehicle.nextStop, speed: tempSpeed, recordedTime: tempVehicle.recordedTime, vehicleId: tempVehicle.vehicleId}
-              }
-            }
-          });
-          //remove the vehicle not update with past 5 minutes
-          _this.visualVehicles.vehicleIds.forEach((curVehicle) => {
-            let tempVIdx = _this.visualVehicles.vehicleIds.indexOf(curVehicle);
-            let recordTime = new Date(_this.visualVehicles.vehicleInfos[tempVIdx].recordedTime);
-            if(curTimeDate.getTime() - recordTime.getTime() >= DELETEBEFORE) {
-              _this.removeOneVehicle_visualVehicles(tempVIdx);
-            }
-          });
-        } else _this.dealResponse(response);
-      }).catch(error=>{
-        _this.dealError(error);
-      });
+      // await _this.$axios.get('/realTime/?curTime=' + _this.realTimeDate + ' ' + _this.realTimeTime).then((response) => {
+      //   if(response && response.status === 200) {
+      //     let realTimeVehicleList = response.data;
+      //     realTimeVehicleList.forEach((realTimeVehicle) => { // {point speed}
+      //       let tempVehicle = realTimeVehicle.point;
+      //       let tempSpeed = window.isNaN(realTimeVehicle.speed) ? 0 : realTimeVehicle.speed.toFixed(2);
+      //       if(_this.visualVehicles.vehicleIds.indexOf(tempVehicle.vehicleId) === -1) { //not exist
+      //         _this.visualVehicles.vehicleIds.push(tempVehicle.vehicleId);
+      //         _this.visualVehicles.speeds.push(tempSpeed);
+      //         _this.visualVehicles.points.push(new BMap.Point(tempVehicle.lon, tempVehicle.lat));
+      //         _this.visualVehicles.bearings.push(tempVehicle.bearing);
+      //         _this.visualVehicles.vehicleInfos.push({routeId: tempVehicle.routeId, agencyId: tempVehicle.agencyId,
+      //           nextStop: tempVehicle.nextStop, speed: tempSpeed, recordedTime: tempVehicle.recordedTime, vehicleId: tempVehicle.vehicleId});
+      //       } else {
+      //         let curVIdx = _this.visualVehicles.vehicleIds.indexOf(tempVehicle.vehicleId);
+      //         //remove the vehicle already arrival the end
+      //         if(tempVehicle.nextStop === "") _this.removeOneVehicle_visualVehicles(curVIdx);
+      //         else {
+      //           _this.visualVehicles.points[curVIdx] = new BMap.Point(tempVehicle.lon, tempVehicle.lat);
+      //           _this.visualVehicles.bearings[curVIdx] = tempVehicle.bearing;
+      //           _this.visualVehicles.speeds[curVIdx] = tempSpeed;
+      //           _this.visualVehicles.vehicleInfos[curVIdx] = {routeId: tempVehicle.routeId, agencyId: tempVehicle.agencyId,
+      //             nextStop: tempVehicle.nextStop, speed: tempSpeed, recordedTime: tempVehicle.recordedTime, vehicleId: tempVehicle.vehicleId}
+      //         }
+      //       }
+      //     });
+      //     //remove the vehicle not update with past 5 minutes
+      //     _this.visualVehicles.vehicleIds.forEach((curVehicle) => {
+      //       let tempVIdx = _this.visualVehicles.vehicleIds.indexOf(curVehicle);
+      //       let recordTime = new Date(_this.visualVehicles.vehicleInfos[tempVIdx].recordedTime);
+      //       if(curTimeDate.getTime() - recordTime.getTime() >= DELETEBEFORE) {
+      //         _this.removeOneVehicle_visualVehicles(tempVIdx);
+      //       }
+      //     });
+      //   } else _this.dealResponse(response);
+      // }).catch(error=>{
+      //   _this.dealError(error);
+      // });
       if(_this.mapLayers.canvasLayerBusVehicle != null) _this.updateCanvasBusVehicle(); //update the display
     },
     /**
@@ -1655,7 +1657,66 @@ export default {
           _this.displayStopData.stopTimeList.splice(tempIdx, 1);
         }, 5000);
       }
-    }
+    },
+
+    initSocket() {
+      let _this = this
+      if ('WebSocket' in window) {
+        console.log('支持 websocket')
+        _this.ws = new WebSocket("ws://47.105.33.143:8090/api/realtime")
+        socket.setWs(_this.ws)
+        _this.ws.onopen = function() {
+          console.log('opened socket')
+          // _this.keepAlive()
+        }
+        _this.ws.onerror= function(err) {
+          console.err('error in socket')
+            console.err(err)
+            setTimeout(() => {initSocket()}, _this.socket.delay)
+        }
+        _this.ws.onmessage = function(msg) {
+          console.log('msg from server:' + msg.data)
+          let realTimeVehicleList = JSON.parse(msg.data);
+          realTimeVehicleList.forEach((point) => {
+            let tempSpeed = window.isNaN(point.speed) ? 0 : point.speed.toFixed(2);
+            if(_this.visualVehicles.vehicleIds.indexOf(point.id) === -1) { //not exist
+              _this.visualVehicles.vehicleIds.push(point.id);
+              _this.visualVehicles.speeds.push(tempSpeed);
+              _this.visualVehicles.points.push(new BMap.Point(point.lon, point.lat));
+              _this.visualVehicles.bearings.push(point.bearing);
+              _this.visualVehicles.vehicleInfos.push({routeId: point.routeId, agencyId: point.agencyId,
+                nextStop: point.nextStop, speed: tempSpeed, recordedTime: point.recordedTime, vehicleId: point.id});
+            } else {
+              let curVIdx = _this.visualVehicles.vehicleIds.indexOf(point.id);
+              //remove the vehicle already arrival the end
+              if(point.nextStop === "") _this.removeOneVehicle_visualVehicles(curVIdx);
+              else {
+                _this.visualVehicles.points[curVIdx] = new BMap.Point(point.lon, point.lat);
+                _this.visualVehicles.bearings[curVIdx] = point.bearing;
+                _this.visualVehicles.speeds[curVIdx] = tempSpeed;
+                _this.visualVehicles.vehicleInfos[curVIdx] = {routeId: point.routeId, agencyId: point.agencyId,
+                  nextStop: point.nextStop, speed: tempSpeed, recordedTime: point.recordedTime, vehicleId: point.id}
+              }
+            }
+          });
+          //remove the vehicle not update with past 5 minutes
+          // _this.visualVehicles.vehicleIds.forEach((curVehicle) => {
+          //   let tempVIdx = _this.visualVehicles.vehicleIds.indexOf(curVehicle);
+          //   let recordTime = new Date(_this.visualVehicles.vehicleInfos[tempVIdx].recordedTime);
+          //   if(curTimeDate.getTime() - recordTime.getTime() >= DELETEBEFORE) {
+          //     _this.removeOneVehicle_visualVehicles(tempVIdx);
+          //   }
+          // });
+          _this.$message({
+            message:'Realtime Location Updated',
+            type:'success'
+          })
+        } 
+      } else {
+        console.err('不支持 websocket')
+        alert('浏览器暂不支持！')
+      }
+    },
   }
 }
 </script>

@@ -10,9 +10,9 @@ module.exports = {
         proxy: {
             '/api': {
                 //default
-                target: 'http://localhost:8090',
+                // target: 'http://localhost:8090',
                 //For server
-                // target: 'http://47.105.33.143:8090',
+                target: 'http://47.105.33.143:8090',
                 changeOrigin: true,
                 pathRewrite: {
                     '^/api': ''
