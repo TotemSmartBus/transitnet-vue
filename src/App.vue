@@ -15,7 +15,7 @@ export default {
 <style>
 #root {
   height: 100%;
-  weight: 100%;
+  width: 100%;
   color: black;
   margin: 0;
   padding: 0;
