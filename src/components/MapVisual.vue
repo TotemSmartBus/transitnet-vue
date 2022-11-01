@@ -1951,7 +1951,7 @@ export default {
       let _this = this;
       if ("WebSocket" in window) {
         console.log("支持 websocket");
-        _this.ws = new WebSocket("ws://47.105.33.143:8090/api/realtime");
+        _this.ws = new WebSocket("ws://localhost:8090/api/realtime");
         socket.setWs(_this.ws);
         _this.ws.onopen = function () {
           console.log("opened socket");
@@ -1965,7 +1965,6 @@ export default {
           }, _this.socket.delay);
         };
         _this.ws.onmessage = function (msg) {
-          console.log("msg from server:" + msg.data);
           let realTimeVehicleList = JSON.parse(msg.data);
           realTimeVehicleList.forEach((point) => {
             let tempSpeed = window.isNaN(point.speed)
