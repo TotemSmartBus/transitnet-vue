@@ -12,10 +12,10 @@ import router from "./router/index.js";
  * @type {{CancelTokenSource: CancelTokenSource, Axios: Axios, CancelStatic: CancelStatic, HeadersDefaults: HeadersDefaults, AxiosDefaults: AxiosDefaults, AxiosProxyConfig: AxiosProxyConfig, AxiosResponseTransformer: AxiosResponseTransformer, AxiosStatic: AxiosStatic, AxiosRequestConfig: AxiosRequestConfig, AxiosRequestTransformer: AxiosRequestTransformer, AxiosRequestHeaders: AxiosRequestHeaders, Cancel: Cancel, AxiosInstance: AxiosInstance, AxiosError: AxiosError, Method: Method, AxiosPromise: AxiosPromise, CancelTokenStatic: CancelTokenStatic, AxiosBasicCredentials: AxiosBasicCredentials, ResponseType: ResponseType, CancelToken: CancelToken, AxiosInterceptorManager: AxiosInterceptorManager, TransitionalOptions: TransitionalOptions, Canceler: Canceler, AxiosResponse: AxiosResponse, AxiosResponseHeaders: AxiosResponseHeaders, AxiosAdapter: AxiosAdapter} | AxiosStatic}
  */
 //default
-// axios.defaults.baseURL = "http://localhost:8090/api";
+axios.defaults.baseURL = "http://localhost:8090/api";
 
 //For server
-axios.defaults.baseURL = 'http://47.105.33.143:8090/api';
+// axios.defaults.baseURL = 'http://47.105.33.143:8090/api';
 /**
  * Other components send data via this.$axios
  * @type {AxiosStatic|{CancelTokenSource: CancelTokenSource, Axios: Axios, CancelStatic: CancelStatic, HeadersDefaults: HeadersDefaults, AxiosDefaults: AxiosDefaults, AxiosProxyConfig: AxiosProxyConfig, AxiosResponseTransformer: AxiosResponseTransformer, AxiosStatic: AxiosStatic, AxiosRequestConfig: AxiosRequestConfig, AxiosRequestTransformer: AxiosRequestTransformer, AxiosRequestHeaders: AxiosRequestHeaders, Cancel: Cancel, AxiosInstance: AxiosInstance, AxiosError: AxiosError, Method: Method, AxiosPromise: AxiosPromise, CancelTokenStatic: CancelTokenStatic, AxiosBasicCredentials: AxiosBasicCredentials, ResponseType: ResponseType, CancelToken: CancelToken, AxiosInterceptorManager: AxiosInterceptorManager, TransitionalOptions: TransitionalOptions, Canceler: Canceler, AxiosResponse: AxiosResponse, AxiosResponseHeaders: AxiosResponseHeaders, AxiosAdapter: AxiosAdapter}|AxiosStatic}
