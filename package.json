@@ -2,14 +2,20 @@
   "name": "transitnet-vue",
   "version": "0.1.0",
   "private": true,
+  "vueCompilerOptions": {
+    "target": 2.6
+  },
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "dev": "vue-cli-service serve --mode development",
+    "serve": "vue-cli-service serve --mode development",
+    "build": "vue-cli-service build --mode production",
+    "package": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@turf/point-to-line-distance": "^6.5.0",
     "@turf/turf": "^6.5.0",
+    "@vue/compiler-dom": "^3.2.45",
     "axios": "^0.24.0",
     "core-js": "^3.6.5",
     "echarts": "^5.2.2",
@@ -18,6 +24,7 @@
     "jquery": "^3.6.0",
     "kuan-vue-flip-clock": "^1.0.1",
     "mapv": "^2.0.62",
+    "module": "^1.2.5",
     "node-sass": "^4.12.0",
     "sass-loader": "^10.2.0",
     "vue": "^2.6.11",
@@ -28,9 +35,11 @@
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "@vue/runtime-dom": "latest",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
+    "node-loader": "^1.0.1",
     "vue-router": "^3.2.0",
     "vue-template-compiler": "^2.6.11",
     "webpack": "^4.46.0"

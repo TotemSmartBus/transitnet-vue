@@ -5,15 +5,6 @@
         <el-tabs v-model="activeName" @tab-click="handleClick">
           <el-tab-pane label="Real-time Analysis Panel" name="first">
             <el-form>
-              <el-form-item label="Date">
-                <el-date-picker
-                  v-model="realTimeDatePick"
-                  type="date"
-                  placeholder="Select Date"
-                  @change="updataVisualData"
-                >
-                </el-date-picker>
-              </el-form-item>
               <el-form-item label="Time">
                 Real-time bus data will update over time
               </el-form-item>
@@ -29,7 +20,8 @@
                 Select and Compare Routes or Trips
               </el-form-item>
               <el-form-item label="Select Routes:">
-                count: {{ realTimeRouteOptions.length }}</el-form-item
+                count: {{ realTimeRouteOptions.length }}
+              </el-form-item
               >
               <el-select
                 v-model="selectedRouteList"
@@ -46,7 +38,8 @@
                 </el-option>
               </el-select>
               <el-button @click="submitRoutes" class="submitButton"
-                >Submit</el-button
+              >Submit
+              </el-button
               >
               <el-form-item label="Select Trips:">
                 count: {{ realTimeTripOptions.length }}
@@ -79,7 +72,8 @@
                 </el-option>
               </el-select>
               <el-button @click="submitTrips" class="submitButton"
-                >Submit</el-button
+              >Submit
+              </el-button
               >
             </el-form>
           </el-tab-pane>
@@ -99,15 +93,18 @@
                 ></el-date-picker>
                 <el-button class="btn" @click="clearTimeSpan">clear</el-button>
                 <el-button class="btn" @click="setTimeSpan"
-                  >SetTimeSpan</el-button
+                >SetTimeSpan
+                </el-button
                 >
               </el-form-item>
               <el-form-item>
                 <el-button class="btn" @click="show_transit_network"
-                  >Show Transit Network</el-button
+                >Show Transit Network
+                </el-button
                 >
                 <el-button class="btn" @click="show_road_speed"
-                  >Show Road Speed</el-button
+                >Show Road Speed
+                </el-button
                 >
               </el-form-item>
               <el-form-item label="RouteId">
@@ -172,7 +169,8 @@
               <div id="legendVehicle" ref="mapLegendVehicle"></div>
               <div id="legendRoadSpeed" ref="mapLegendRoadSpeed"></div>
               <el-button id="clearDrawButton" @click="clearAllDraw"
-                >Clear Draw</el-button
+              >Clear Draw
+              </el-button
               >
               <div id="baiduMap"></div>
               <div id="detailWindow" ref="detailWindow">
@@ -225,6 +223,7 @@
 /* eslint-disable */
 import * as zrender from "zrender";
 import CanvasPainter from "zrender/lib/canvas/Painter";
+
 zrender.registerPainter("canvas", CanvasPainter);
 import FlipClock from "kuan-vue-flip-clock";
 import {
@@ -240,7 +239,7 @@ import {
   CANVAS_ZINDEX_VEHICLE,
   CANVAS_ZINDEX_LINE,
   pathStyle,
-  rectStyle,
+  rectStyle
 } from "../../public/utils.js";
 import { CanvasLayer } from "../../public/CanvasLayer.js";
 import BusRoute_Chart from "@/components/BusRoute_Chart";
@@ -249,6 +248,7 @@ import BusSpeed_Chart from "@/components/BusSpeed_Chart";
 import BusTrip_Chart from "@/components/BusTrip_Chart";
 import * as turf from "@turf/turf";
 import socket from "@/components/socket.js";
+
 export default {
   name: "MapVisual",
   components: {
@@ -256,7 +256,7 @@ export default {
     FlipClock,
     BusRoute_Chart,
     BusTime_Chart,
-    BusSpeed_Chart,
+    BusSpeed_Chart
   },
   data() {
     return {
@@ -266,7 +266,7 @@ export default {
         trajectories: [],
         weights: [],
         totalPoints: [],
-        stopData: [],
+        stopData: []
       },
       map: {},
       timeSpan: [],
@@ -275,7 +275,7 @@ export default {
         stopIdList: [],
         stopNameList: [],
         stopTimeList: [],
-        stopPointList: [],
+        stopPointList: []
       },
       labelPosition: "top",
       routeIdOptions: [],
@@ -285,7 +285,7 @@ export default {
         vehicleInfos: [],
         bearings: [],
         points: [],
-        speeds: [],
+        speeds: []
       },
       nearestVehicleData: {
         idList: [],
@@ -293,14 +293,14 @@ export default {
         vehicleInfos: [],
         bearings: [],
         points: [],
-        speeds: [],
+        speeds: []
       },
       nearestTrajData: {
         idList: [],
         trajectories: [],
         weights: [],
         totalPoints: [],
-        stopData: [],
+        stopData: []
       },
       mapLayers: {
         lineLayer: null,
@@ -309,7 +309,7 @@ export default {
         canvasLayerLine: null,
         canvasLayerPointer: null,
         canvasLayerBack: null,
-        canvasLayerBusVehicle: null,
+        canvasLayerBusVehicle: null
       },
       curRouteId: "",
       curTripId: "",
@@ -323,9 +323,9 @@ export default {
           routeId: "",
           agencyId: "",
           nextStop: "",
-          speed: 0.0,
+          speed: 0.0
         },
-        curVehicleSpeedList: [],
+        curVehicleSpeedList: []
       },
       realTimeDate: "2022-01-01",
       realTimeDatePick: "2022-01-01",
@@ -338,7 +338,7 @@ export default {
         marker_polygons: [],
         marker_label: [],
         marker_points: [],
-        overlayIdx: [],
+        overlayIdx: []
       },
       turfLineStrings: [],
       realTimeRouteOptions: [],
@@ -347,7 +347,7 @@ export default {
       selectedTripList: [],
       routeSpeedList: [],
       tripSpeedList: [],
-      realTimeRouteId: "",
+      realTimeRouteId: ""
     };
   },
   async mounted() {
@@ -373,14 +373,14 @@ export default {
     async initMap() {
       let _this = this;
       _this.map = new BMap.Map("baiduMap", {
-        enableMapClick: false,
+        enableMapClick: false
       });
       _this.map.setMapStyle({ style: "light" });
       _this.map.centerAndZoom(new BMap.Point(-73.88601, 40.880624), 13); //set map center and zoom
       _this.map.enableScrollWheelZoom(true);
 
       ["dragging", "dragstart", "dragend", "zoomstart", "zoomend"].forEach(
-        function (item) {
+        function(item) {
           _this.map.addEventListener(item, () => {
             if (_this.$refs.detailWindow.style.display === "block") {
               _this.setDetailWindowPosition();
@@ -391,7 +391,7 @@ export default {
       const navigation = new BMap.NavigationControl({
         //init the navigation
         anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
-        type: BMAP_NAVIGATION_CONTROL_SMALL,
+        type: BMAP_NAVIGATION_CONTROL_SMALL
       });
       _this.addDrawer();
       _this.listAllRoutesIdOption();
@@ -410,20 +410,20 @@ export default {
           shape: {
             cx: 20,
             cy: 20 + i * interval1,
-            r: 10,
+            r: 10
           },
           style: {
-            fill: legendData1[i].color,
-          },
+            fill: legendData1[i].color
+          }
         });
         zr1.add(circle);
         let txt = new zrender.Text({
           style: {
             textFill: "rgb(0,0,0)",
             text: legendData1[i].label,
-            fontSize: 12,
+            fontSize: 12
           },
-          position: [35, i * interval1 + 17],
+          position: [35, i * interval1 + 17]
         });
         zr1.add(txt);
       }
@@ -438,21 +438,21 @@ export default {
             x1: 10 + i * interval2,
             y1: 10,
             x2: 10 + (i + 1) * interval2,
-            y2: 10,
+            y2: 10
           },
           style: {
             stroke: legendData2[i].color,
-            lineWidth: 10,
-          },
+            lineWidth: 10
+          }
         });
         zr2.add(line);
         let txt = new zrender.Text({
           style: {
             textFill: "rgb(0,0,0)",
             text: legendData2[i].label,
-            fontSize: 12,
+            fontSize: 12
           },
-          position: [30 + i * interval2 - 0.5 * interval2, 20],
+          position: [30 + i * interval2 - 0.5 * interval2, 20]
         });
         zr2.add(txt);
       }
@@ -527,7 +527,7 @@ export default {
       if (_this.realTimeRouteId === "") {
         _this.$message({
           message: "Please Check RouteId is selected",
-          type: "error",
+          type: "error"
         });
         return;
       }
@@ -538,9 +538,9 @@ export default {
       this.$axios
         .get(
           "/realTime/tripOptions/?routeId=" +
-            _this.realTimeRouteId +
-            "&date=" +
-            _this.realTimeDate
+          _this.realTimeRouteId +
+          "&date=" +
+          _this.realTimeDate
         )
         .then((response) => {
           if (response && response.status === 200) {
@@ -567,17 +567,17 @@ export default {
             // BMAP_DRAWING_CIRCLE,
             BMAP_DRAWING_POLYLINE,
             // BMAP_DRAWING_POLYGON,
-            BMAP_DRAWING_RECTANGLE,
-          ],
+            BMAP_DRAWING_RECTANGLE
+          ]
         },
         polylineOptions: pathStyle,
-        rectangleOptions: rectStyle,
+        rectangleOptions: rectStyle
       });
       //after line draw complete
-      let lineComplete = function (line) {
+      let lineComplete = function(line) {
         let point = line.getPath()[0];
         let opts = {
-          position: point,
+          position: point
         };
         let label = new BMap.Label(
           "path: " + _this.drawerData.line_polygons.length,
@@ -587,7 +587,7 @@ export default {
           color: "red",
           fontSize: "15px",
           height: "0px",
-          width: "0px",
+          width: "0px"
         });
         _this.map.addOverlay(label);
         _this.drawerData.line_label.push(label);
@@ -595,13 +595,13 @@ export default {
         //drawline API
       };
       //after rect draw complete
-      let rectComplete = function (rect) {
+      let rectComplete = function(rect) {
         let point = new BMap.Point(
           (rect.getPath()[0].lng + rect.getPath()[2].lng) / 2,
           (rect.getPath()[0].lat + rect.getPath()[2].lat) / 2
         );
         let opts = {
-          position: point,
+          position: point
         };
         let label = new BMap.Label(
           "window: " + _this.drawerData.rect_polygons.length,
@@ -611,7 +611,7 @@ export default {
           color: "red",
           fontSize: "15px",
           height: "0px",
-          width: "0px",
+          width: "0px"
         });
         _this.map.addOverlay(label);
         _this.drawerData.rect_label.push(label);
@@ -619,20 +619,21 @@ export default {
         //drawRect API
       };
       //after marker draw complete
-      let markerComplete = function (marker) {
+      let markerComplete = function(marker) {
         let point = turf.point([marker.point.lng, marker.point.lat]);
         let bp = new BMap.Point(marker.point.lng, marker.point.lat);
+        console.log(`lat=${marker.point.lat}&lon=${marker.point.lng}`)
         let opts = {
-          position: bp,
+          position: bp
         };
         let label = new BMap.Label(
           "marker" +
-            _this.drawerData.marker_polygons.length +
-            ": (" +
-            marker.point.lng +
-            "," +
-            marker.point.lat +
-            ")",
+          _this.drawerData.marker_polygons.length +
+          ": (" +
+          marker.point.lng +
+          "," +
+          marker.point.lat +
+          ")",
           opts
         );
         label.setStyle({
@@ -640,7 +641,7 @@ export default {
           fontWeight: "bold",
           fontSize: "15px",
           height: "0px",
-          width: "0px",
+          width: "0px"
         });
         _this.map.addOverlay(label);
         _this.drawerData.marker_label.push(label);
@@ -649,7 +650,7 @@ export default {
         //drawMarker API
         _this.$message({
           message: "Select the 10 nearest routes and vehicle, please waiting",
-          type: "success",
+          type: "success"
         });
         _this.updateCanvasLine_roadSpeed();
         _this.updateCanvasBusVehicle();
@@ -662,7 +663,7 @@ export default {
     async displayVehicle_Canvas() {
       this.$message({
         message: "Loading the real-time bus position",
-        type: "success",
+        type: "success"
       });
       let _this = this;
       await _this.updateVehicleData();
@@ -670,7 +671,7 @@ export default {
       _this.mapLayers.canvasLayerBusVehicle = new CanvasLayer({
         map: _this.map,
         update: _this.updateCanvasBusVehicle,
-        zIndex: CANVAS_ZINDEX_VEHICLE, //make sure the layer's index is high enough to trigger the mouse methods
+        zIndex: CANVAS_ZINDEX_VEHICLE //make sure the layer's index is high enough to trigger the mouse methods
       });
     },
     /**
@@ -687,7 +688,7 @@ export default {
         vehicleInfos: [],
         bearings: [],
         points: [],
-        speeds: [],
+        speeds: []
       };
       for (let t = 0; t < _this.drawerData.marker_points.length; t++) {
         let point = _this.drawerData.marker_points[t];
@@ -695,7 +696,7 @@ export default {
         for (let i = 0; i < len; i++) {
           let tp = turf.point([
             _this.visualVehicles.points[i].lng,
-            _this.visualVehicles.points[i].lat,
+            _this.visualVehicles.points[i].lat
           ]);
           let dist = turf.distance(point, tp, { units: "miles" });
           distList.push([_this.visualVehicles.vehicleIds[i], dist, i]);
@@ -763,7 +764,7 @@ export default {
     async displayRouteShapeAndSpeed_Canvas() {
       this.$message({
         message: "Loading the routes history speed",
-        type: "success",
+        type: "success"
       });
       let _this = this;
       let allShapeList = [];
@@ -799,8 +800,8 @@ export default {
               var trajSum = {
                 geometry: {
                   type: "LineString",
-                  coordinates: coordinatesList,
-                },
+                  coordinates: coordinatesList
+                }
               };
               _this.turfLineStrings.push(turf.lineString(coordinatesList));
               _this.trajData.trajectories.push(trajSum);
@@ -820,7 +821,7 @@ export default {
       _this.mapLayers.canvasLayerLine = new CanvasLayer({
         map: _this.map,
         update: _this.updateCanvasLine_roadSpeed,
-        zIndex: CANVAS_ZINDEX_LINE,
+        zIndex: CANVAS_ZINDEX_LINE
       });
     },
     show_transit_network() {
@@ -834,7 +835,7 @@ export default {
     async displayTransitNetwork_Canvas() {
       this.$message({
         message: "Loading the transit network",
-        type: "success",
+        type: "success"
       });
       let _this = this;
       var routes = [];
@@ -895,9 +896,9 @@ export default {
       this.$axios
         .get(
           "/mapv/timespan/?startDate=" +
-            _this.timeSpan[0].toLocaleDateString().replaceAll("/", "-") +
-            "&endDate=" +
-            _this.timeSpan[1].toLocaleDateString().replaceAll("/", "-")
+          _this.timeSpan[0].toLocaleDateString().replaceAll("/", "-") +
+          "&endDate=" +
+          _this.timeSpan[1].toLocaleDateString().replaceAll("/", "-")
         )
         .then((response) => {
           if (response && response.status === 200) {
@@ -910,7 +911,7 @@ export default {
             if (routes.length === 0) {
               this.$message({
                 message: "The bus service list in this timeSpan is empty",
-                type: "warning",
+                type: "warning"
               });
               return;
             }
@@ -938,7 +939,7 @@ export default {
             if (_this.routeIdOptions.length === 0) {
               _this.$message({
                 message: "The bus route list is empty",
-                type: "warning",
+                type: "warning"
               });
             }
           } else _this.dealResponse(response);
@@ -959,9 +960,9 @@ export default {
       this.$axios
         .get(
           "/routes/timespan?startDate=" +
-            _this.timeSpan[0].toLocaleDateString().replaceAll("/", "-") +
-            "&endDate=" +
-            _this.timeSpan[1].toLocaleDateString().replaceAll("/", "-")
+          _this.timeSpan[0].toLocaleDateString().replaceAll("/", "-") +
+          "&endDate=" +
+          _this.timeSpan[1].toLocaleDateString().replaceAll("/", "-")
         )
         .then((response) => {
           if (response && response.status === 200) {
@@ -969,7 +970,7 @@ export default {
             if (_this.routeIdOptions.length === 0) {
               _this.$message({
                 message: "The bus route list for this timeSpan is empty",
-                type: "warning",
+                type: "warning"
               });
             }
           } else _this.dealResponse(response);
@@ -986,7 +987,7 @@ export default {
       if (this.curRouteId !== "")
         this.$message({
           message: "Filter tripList by routeId",
-          type: "success",
+          type: "success"
         });
       if (this.timeSpan.length === 0) {
         // if set timespan
@@ -1013,7 +1014,7 @@ export default {
             if (_this.tripIdOptions.length === 0) {
               _this.$message({
                 message: "The bus trip list for this route is empty",
-                type: "warning",
+                type: "warning"
               });
             }
           } else _this.dealResponse(response);
@@ -1034,11 +1035,11 @@ export default {
       this.$axios
         .get(
           "/trips/timespan?routeId=" +
-            _this.curRouteId +
-            "&startDate=" +
-            _this.timeSpan[0].toLocaleDateString().replaceAll("/", "-") +
-            "&endDate=" +
-            _this.timeSpan[1].toLocaleDateString().replaceAll("/", "-")
+          _this.curRouteId +
+          "&startDate=" +
+          _this.timeSpan[0].toLocaleDateString().replaceAll("/", "-") +
+          "&endDate=" +
+          _this.timeSpan[1].toLocaleDateString().replaceAll("/", "-")
         )
         .then((response) => {
           if (response && response.status === 200) {
@@ -1047,7 +1048,7 @@ export default {
               _this.$message({
                 message:
                   "The bus trip list for this route and timespan is empty",
-                type: "warning",
+                type: "warning"
               });
             }
           } else _this.dealResponse(response);
@@ -1068,14 +1069,14 @@ export default {
       if (_this.curRouteId === "") {
         await this.$message({
           message: "Please Check the RouteId is Selected",
-          type: "warning",
+          type: "warning"
         });
         return;
       }
       if (_this.curTripId === "") {
         await this.$message({
           message: "Please Check the TripId is Selected",
-          type: "warning",
+          type: "warning"
         });
         return;
       }
@@ -1096,13 +1097,13 @@ export default {
             ) {
               this.$message({
                 message: "Please Check Matched RouteId and TripId are selected",
-                type: "error",
+                type: "error"
               });
               return;
             }
             this.$message({
               message: "The selected trajectory is loading, please wait",
-              type: "success",
+              type: "success"
             });
             let dataSet = new mapv.DataSet(_this.trajData.trajectories);
             let curGeometry = _this.trajData.trajectories[0].geometry;
@@ -1139,7 +1140,7 @@ export default {
             _this.mapLayers.canvasLayerPointer = new CanvasLayer({
               map: _this.map,
               update: _this.updateCanvasPointer,
-              zIndex: CANVAS_ZINDEX_LINE + 1,
+              zIndex: CANVAS_ZINDEX_LINE + 1
             });
           } else _this.dealResponse(response);
         })
@@ -1165,7 +1166,7 @@ export default {
                 geometry: tempStopData[i].pointJsonModel.geometry,
                 id: tempStopData[i].stopId,
                 name: tempStopData[i].stopName,
-                time: tempStopData[i].arrivalTime,
+                time: tempStopData[i].arrivalTime
               });
             }
             let dataSet = new mapv.DataSet(_this.trajData.stopData);
@@ -1173,9 +1174,9 @@ export default {
             _this.mapLayers.canvasLayerStopText = new CanvasLayer({
               map: _this.map,
               update: _this.updateCanvasStop,
-              zIndex: 5,
+              zIndex: 5
             });
-            let stopMouseMove = function (item) {
+            let stopMouseMove = function(item) {
               let layer = _this.mapLayers.canvasLayerStopText;
               if (!layer.zr) {
                 layer.zr = zrender.init(layer.canvas);
@@ -1198,9 +1199,9 @@ export default {
                   style: {
                     textFill: "rgb(0,0,0)",
                     text: item.name + " " + item.time,
-                    fontSize: 14,
+                    fontSize: 14
                   },
-                  position: [pixel.x + 10, pixel.y + 10],
+                  position: [pixel.x + 10, pixel.y + 10]
                 });
                 layer.zr.add(text);
                 setTimeout(() => {
@@ -1250,9 +1251,9 @@ export default {
               _this.displayStopData.stopNameList[i] +
               " " +
               _this.displayStopData.stopTimeList[i],
-            fontSize: 14,
+            fontSize: 14
           },
-          position: [pixel.x + 10, pixel.y + 10],
+          position: [pixel.x + 10, pixel.y + 10]
         });
         layer.zr.add(text);
       }
@@ -1279,7 +1280,7 @@ export default {
     async showOneTrajectory() {
       await this.$message({
         message: "Clear and Stop the real-time bus data update",
-        type: "warning",
+        type: "warning"
       });
       if (this.visualVehicles.vehicleIds.length !== 0) {
         await this.clearDisplayVehicles();
@@ -1350,16 +1351,16 @@ export default {
           shape: {
             cx: pixel.x,
             cy: pixel.y,
-            r: 10,
+            r: 10
           },
           style: {
             fill: getVehicleColor(weights[k]),
-            stroke: "#faf9f9", //'#2e2d2d'
+            stroke: "#faf9f9" //'#2e2d2d'
           },
-          onclick: async function () {
+          onclick: async function() {
             that.$message({
               message: "Loading the detailWindow",
-              type: "success",
+              type: "success"
             });
             that.curVehicle.curVehiclePoint = points[k];
             that.curVehicle.curVehicleInfo = infos[k];
@@ -1367,7 +1368,7 @@ export default {
             that.$refs.speedChart.updateSpeedChartVehicleData();
             that.showDetailWindow();
             that.setDetailWindowPosition();
-          },
+          }
         });
         _this.zr.add(circle);
         // Render arrows according to render pixel distance
@@ -1387,13 +1388,13 @@ export default {
             points: [
               [aPixel.x, aPixel.y],
               [midPixel.x, midPixel.y],
-              [bPixel.x, bPixel.y],
-            ],
+              [bPixel.x, bPixel.y]
+            ]
           },
           style: {
             stroke: "#000000",
-            lineWidth: 2,
-          },
+            lineWidth: 2
+          }
         });
         _this.zr.add(line1);
       }
@@ -1424,11 +1425,11 @@ export default {
       await _this.$axios
         .get(
           "/realTime/speed/?vehicleId=" +
-            vehicleId +
-            "&curTime=" +
-            _this.realTimeDate +
-            " " +
-            _this.realTimeTime
+          vehicleId +
+          "&curTime=" +
+          _this.realTimeDate +
+          " " +
+          _this.realTimeTime
         )
         .then((response) => {
           if (response && response.status === 200) {
@@ -1503,13 +1504,13 @@ export default {
       if (this.timer !== null) {
         this.$message({
           message: "Real-time bus data update has started",
-          type: "warning",
+          type: "warning"
         });
         return;
       }
       this.$message({
         message: "Real-time bus data update is starting, please wait",
-        type: "success",
+        type: "success"
       });
       if (this.mapLayers.canvasLayerBusVehicle != null) {
         //update vehicle data
@@ -1525,12 +1526,12 @@ export default {
     async stopDisplayVehicles() {
       await this.$message({
         message: "Stop real-time bus data updates",
-        type: "warning",
+        type: "warning"
       });
       if (this.timer === null) {
         await this.$message({
           message: "Real-time bus data update has stopped",
-          type: "error",
+          type: "error"
         });
         return;
       }
@@ -1543,14 +1544,14 @@ export default {
     async clearDisplayVehicles() {
       await this.$message({
         message: "Bus point on the map is clearing, please wait",
-        type: "warning",
+        type: "warning"
       });
       this.visualVehicles = {
         vehicleIds: [],
         vehicleInfos: [],
         bearings: [],
         points: [],
-        speeds: [],
+        speeds: []
       };
       this.nearestVehicleData = {
         idList: [],
@@ -1558,7 +1559,7 @@ export default {
         vehicleInfos: [],
         bearings: [],
         points: [],
-        speeds: [],
+        speeds: []
       };
       this.updateCanvasBusVehicle();
     },
@@ -1599,12 +1600,12 @@ export default {
                 stroke: getTrajColorByValue(weight),
                 lineWidth: 3.5,
                 shadowColor: "#000",
-                shadowBlur: 2,
+                shadowBlur: 2
               },
               shape: {
                 points: points,
-                smooth: 1,
-              },
+                smooth: 1
+              }
             });
             _this.zr.add(line);
           }
@@ -1627,12 +1628,12 @@ export default {
                 stroke: getTrajColorByValue(weight),
                 lineWidth: 3.5,
                 shadowColor: "#000",
-                shadowBlur: 2,
+                shadowBlur: 2
               },
               shape: {
                 points: points,
-                smooth: 1,
-              },
+                smooth: 1
+              }
             });
             _this.zr.add(line);
           }
@@ -1799,7 +1800,7 @@ export default {
         routeId: "",
         agencyId: "",
         nextStop: "",
-        speed: 0.0,
+        speed: 0.0
       };
     },
     /**
@@ -1808,7 +1809,7 @@ export default {
     dealResponse(response) {
       this.$message({
         message: "Get " + response.status + " from server",
-        type: "error",
+        type: "error"
       });
     },
     /**
@@ -1818,17 +1819,17 @@ export default {
       if (error.response) {
         this.$message({
           message: "Get " + error.response.status + " from server",
-          type: "error",
+          type: "error"
         });
       } else if (error.request) {
         this.$message({
           message: "Request without response",
-          type: "error",
+          type: "error"
         });
       } else {
         this.$message({
           message: "Request sending failed",
-          type: "error",
+          type: "error"
         });
       }
       console.log(error);
@@ -1847,7 +1848,7 @@ export default {
         marker_polygons: [],
         marker_label: [],
         marker_points: [],
-        overlayIdx: [],
+        overlayIdx: []
       };
       _this.nearestTrajData = {
         //nearest data
@@ -1855,7 +1856,7 @@ export default {
         trajectories: [],
         weights: [],
         totalPoints: [],
-        stopData: [],
+        stopData: []
       };
       _this.nearestVehicleData = {
         idList: [],
@@ -1863,7 +1864,7 @@ export default {
         vehicleInfos: [],
         bearings: [],
         points: [],
-        speeds: [],
+        speeds: []
       };
       _this.updateCanvasLine_roadSpeed(); //redraw
       _this.updateCanvasBusVehicle();
@@ -1931,9 +1932,9 @@ export default {
           style: {
             textFill: "rgb(0,0,0)",
             text: row.stopName + " " + row.stopTime,
-            fontSize: 14,
+            fontSize: 14
           },
-          position: [pixel.x + 10, pixel.y + 10],
+          position: [pixel.x + 10, pixel.y + 10]
         });
         layer.zr.add(text);
         setTimeout(() => {
@@ -1951,23 +1952,23 @@ export default {
       let _this = this;
       if ("WebSocket" in window) {
         console.log("支持 websocket");
-        _this.ws = new WebSocket("ws://localhost:8090/api/realtime");
+        _this.ws = new WebSocket(process.env.VUE_APP_WEBSOCKET_ADDR);
         socket.setWs(_this.ws);
-        _this.ws.onopen = function () {
+        _this.ws.onopen = function() {
           console.log("opened socket");
           // _this.keepAlive()
         };
-        _this.ws.onerror = function (err) {
+        _this.ws.onerror = function(err) {
           console.err("error in socket");
           console.err(err);
           setTimeout(() => {
             initSocket();
           }, _this.socket.delay);
         };
-        _this.ws.onmessage = function (msg) {
+        _this.ws.onmessage = function(msg) {
           let realTimeVehicleList = JSON.parse(msg.data);
           realTimeVehicleList.forEach((point) => {
-            let tempSpeed = window.isNaN(point.speed)
+            let tempSpeed = point.speed&&window.isNaN(point.speed)
               ? 0
               : point.speed.toFixed(2);
             if (_this.visualVehicles.vehicleIds.indexOf(point.id) === -1) {
@@ -1984,7 +1985,7 @@ export default {
                 nextStop: point.nextStop,
                 speed: tempSpeed,
                 recordedTime: point.recordedTime,
-                vehicleId: point.id,
+                vehicleId: point.id
               });
             } else {
               let curVIdx = _this.visualVehicles.vehicleIds.indexOf(point.id);
@@ -2004,7 +2005,7 @@ export default {
                   nextStop: point.nextStop,
                   speed: tempSpeed,
                   recordedTime: point.recordedTime,
-                  vehicleId: point.id,
+                  vehicleId: point.id
                 };
               }
             }
@@ -2019,15 +2020,15 @@ export default {
           // });
           _this.$message({
             message: "Realtime Location Updated",
-            type: "success",
+            type: "success"
           });
         };
       } else {
         console.err("不支持 websocket");
         alert("浏览器暂不支持！");
       }
-    },
-  },
+    }
+  }
 };
 </script>
 <style>
@@ -2037,18 +2038,22 @@ export default {
   width: 100%;
   height: 100%;
 }
+
 #map_container {
   width: 100%;
   height: 100%;
   position: relative;
   overflow: hidden;
 }
+
 .el-form-item__label {
   font-weight: bold;
 }
+
 .btn {
   margin-top: 20px !important;
 }
+
 .toggleButton {
   position: absolute;
   margin-top: 45%;
@@ -2058,25 +2063,31 @@ export default {
   width: 20px;
   z-index: 10;
 }
+
 #toggleRight {
   right: 0;
 }
+
 .el-main {
   padding: 0 !important;
   position: relative;
 }
+
 #root {
   height: 100%;
 }
+
 .el-container {
   height: 100%;
 }
+
 .el-aside {
   margin-left: 10px;
   margin-right: 10px;
   height: 100%;
   overflow: hidden;
 }
+
 #clockContainer {
   margin-bottom: 20px;
   margin-top: 20px;
@@ -2084,12 +2095,14 @@ export default {
   display: flex;
   justify-content: space-around;
 }
+
 #lastItem {
   margin-bottom: 0;
   max-height: 200px;
   height: 200px;
   overflow: hidden;
 }
+
 #asideRight {
   z-index: 15;
 }
@@ -2098,51 +2111,62 @@ export default {
 baidu map infoWindow
 */
 /*替换箭头*/
-img[src="http://api.map.baidu.com/images/iw3.png"]
-{
+img[src="http://api.map.baidu.com/images/iw3.png"] {
   opacity: 0;
   margin-top: -692px !important;
   filter: alpha(opacity=70);
 }
+
 .BMap_pop .BMap_top {
   border: 0 !important;
 }
+
 .BMap_pop .BMap_center {
   border: 0 !important;
 }
+
 .BMap_pop .BMap_bottom {
   border: 0 !important;
 }
+
 .BMap_pop div:nth-child(3) div {
   border-radius: 7px;
   border: 0 !important;
 }
+
 .BMap_pop div:nth-child(1) {
   border-radius: 7px 0 0 0;
   border: 0 !important;
 }
+
 .BMap_pop div:nth-child(5) {
   border-radius: 0 0 0 7px;
   background: transparent !important;
   border: 0 !important;
 }
+
 .BMap_pop div:nth-child(5) div {
   border-radius: 7px;
 }
+
 .BMap_pop div:nth-child(7) div {
   border-radius: 7px;
 }
+
 .BMap_bubble_content {
   width: 100% !important;
   height: 100% !important;
 }
+
 .BMap_bubble_content > div > div:nth-child(1) {
   width: 100% !important;
 }
+
 .BMap_bubble_content > div > div:nth-child(1) > canvas {
   width: 100% !important;
   height: 100% !important;
 }
+
 #legendVehicle {
   background-color: rgba(219, 219, 219, 0.5);
   border-radius: 5px;
@@ -2154,6 +2178,7 @@ img[src="http://api.map.baidu.com/images/iw3.png"]
   width: 95px;
   z-index: 10;
 }
+
 #legendRoadSpeed {
   background-color: transparent;
   margin: 2px;
@@ -2176,6 +2201,7 @@ img[src="http://api.map.baidu.com/images/iw3.png"]
   /*overflow-x:hidden;*/
   top: 20px;
 }
+
 #infoWindow {
   overflow-y: scroll;
   overflow-x: hidden;
@@ -2184,6 +2210,7 @@ img[src="http://api.map.baidu.com/images/iw3.png"]
   width: 370px;
   height: 95%;
 }
+
 #detailTail {
   /*display: none;*/
   border-style: solid;
@@ -2195,13 +2222,16 @@ img[src="http://api.map.baidu.com/images/iw3.png"]
   left: 45%;
   bottom: -30px;
 }
+
 #closeButton {
   position: relative;
   left: 329px;
 }
+
 .el-table th.el-table__cell > .cell {
   font-size: 12px;
 }
+
 .anchorBL {
   display: none;
 }
@@ -2212,9 +2242,11 @@ img[src="http://api.map.baidu.com/images/iw3.png"]
   top: 20px;
   z-index: 10;
 }
+
 .submitButton {
   margin-left: 20px !important;
 }
+
 #emphasizeText .el-form-item__content {
   font-weight: bold;
   font-size: 16px !important;

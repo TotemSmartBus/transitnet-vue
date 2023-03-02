@@ -1,8 +1,9 @@
 //Vue.config.js
 module.exports = {
     //For server, path of the project
-
     publicPath: process.env.NODE_ENV === 'production' ? '/bus/' : '/',
+    
+    // outputDir: 
     productionSourceMap: false,
     devServer: {
         port: 8085,
@@ -11,13 +12,10 @@ module.exports = {
         host: 'localhost',
         proxy: {
             '/api': {
-                //default
-                target: 'http://localhost:8090',
-                //For server
-                // target: 'http://47.105.33.143:8090',
+                target: process.env.VUE_APP_SERVER_ADDR,
                 changeOrigin: true,
                 pathRewrite: {
-                    '^/api': ''
+                    // '^/api': ''
                 }
             }
         }

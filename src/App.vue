@@ -1,10 +1,9 @@
 <template>
-  <div id = 'root'>
+  <div id="root">
     <router-view></router-view>
   </div>
 </template>
 <script>
-import MapVisual from "@/components/MapVisual";
 export default {
   components: { },
   data () {
