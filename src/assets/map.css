@@ -1,0 +1,216 @@
+#baiduMap {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#map_container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.el-form-item__label {
+    font-weight: bold;
+}
+
+.btn {
+    margin-top: 20px !important;
+}
+
+.toggleButton {
+    position: absolute;
+    margin-top: 45%;
+    padding: 0 !important;
+    bottom: 50%;
+    height: 50px;
+    width: 20px;
+    z-index: 10;
+}
+
+#toggleRight {
+    right: 0;
+}
+
+.el-main {
+    padding: 0 !important;
+    position: relative;
+}
+
+#root {
+    height: 100%;
+}
+
+.el-container {
+    height: 100%;
+}
+
+.el-aside {
+    height: 100%;
+    overflow: hidden;
+}
+
+#clockContainer {
+    margin-bottom: 20px;
+    margin-top: 20px;
+    transform: scale(0.5, 0.5);
+    display: flex;
+    justify-content: space-around;
+}
+
+#lastItem {
+    margin-bottom: 0;
+    max-height: 200px;
+    height: 200px;
+    overflow: hidden;
+}
+
+#asideRight {
+    z-index: 15;
+}
+
+/*
+baidu map infoWindow
+*/
+/*替换箭头*/
+img[src="http://api.map.baidu.com/images/iw3.png"] {
+    opacity: 0;
+    margin-top: -692px !important;
+    filter: alpha(opacity=70);
+}
+
+.BMap_pop .BMap_top {
+    border: 0 !important;
+}
+
+.BMap_pop .BMap_center {
+    border: 0 !important;
+}
+
+.BMap_pop .BMap_bottom {
+    border: 0 !important;
+}
+
+.BMap_pop div:nth-child(3) div {
+    border-radius: 7px;
+    border: 0 !important;
+}
+
+.BMap_pop div:nth-child(1) {
+    border-radius: 7px 0 0 0;
+    border: 0 !important;
+}
+
+.BMap_pop div:nth-child(5) {
+    border-radius: 0 0 0 7px;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.BMap_pop div:nth-child(5) div {
+    border-radius: 7px;
+}
+
+.BMap_pop div:nth-child(7) div {
+    border-radius: 7px;
+}
+
+.BMap_bubble_content {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.BMap_bubble_content > div > div:nth-child(1) {
+    width: 100% !important;
+}
+
+.BMap_bubble_content > div > div:nth-child(1) > canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#legendVehicle {
+    background-color: rgba(219, 219, 219, 0.5);
+    border-radius: 5px;
+    margin: 5px;
+    position: absolute;
+    bottom: 10px;
+    right: 50px;
+    height: 170px;
+    width: 95px;
+    z-index: 10;
+}
+
+#legendRoadSpeed {
+    background-color: transparent;
+    margin: 2px;
+    position: absolute;
+    top: 10px;
+    right: 0px;
+    height: 70px;
+    width: 230px;
+    z-index: 10;
+}
+
+#detailWindow {
+    display: none;
+    /*width: 390px;*/
+    /*padding: 20px;*/
+    background-color: white;
+    height: 300px;
+    position: absolute;
+    /*overflow-y:scroll;*/
+    /*overflow-x:hidden;*/
+    top: 20px;
+}
+
+#infoWindow {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    /*margin: 20px;*/
+    padding: 15px 20px 0 20px;
+    width: 370px;
+    height: 95%;
+}
+
+#detailTail {
+    /*display: none;*/
+    border-style: solid;
+    border-width: 15px 15px 15px 15px;
+    border-color: white transparent transparent transparent;
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: 45%;
+    bottom: -30px;
+}
+
+#closeButton {
+    position: relative;
+    left: 329px;
+}
+
+.el-table th.el-table__cell > .cell {
+    font-size: 12px;
+}
+
+.anchorBL {
+    display: none;
+}
+
+#clearDrawButton {
+    position: absolute;
+    left: 350px;
+    top: 20px;
+    z-index: 10;
+}
+
+.submitButton {
+    margin-left: 20px !important;
+}
+
+#emphasizeText .el-form-item__content {
+    font-weight: bold;
+    font-size: 16px !important;
+}

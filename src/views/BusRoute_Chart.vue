@@ -129,7 +129,7 @@ export default {
          * @dataType List<SpeedDateVo>
          */
         await _this.$axios
-          .post("/realTime/routeSpeed", { idList: routeList, dateStr: date })
+          .post("/api/realTime/routeSpeed", { idList: routeList, dateStr: date })
           .then((response) => {
             if (response && response.status == 200) {
               let routeDataList = response.data;

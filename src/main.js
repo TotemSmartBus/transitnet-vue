@@ -1,31 +1,48 @@
-import Vue from "vue";
-import App from "./App.vue";
-import BaiduMap from "vue-baidu-map";
-import ElementUI from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
-import axios from "axios";
-import $ from "jquery";
-import router from "@/router";
+import {createApp} from 'vue'
+import App from './App.vue'
+import router from './router'
+import axios from "axios"
+import $ from "jquery"
+import "vue"
+import './assets/main.css'
+import {
+    ElAside,
+    ElContainer,
+    ElDatePicker,
+    ElDescriptions,
+    ElFooter, ElIcon,
+    ElMessage,
+    ElOption,
+    ElTable,
+    ElTabPane,
+    ElTabs
+} from "element-plus"
+import {ElForm} from "element-plus"
+import {ElButton} from "element-plus"
+import {ElFormItem} from "element-plus"
+import {ElSelect} from "element-plus"
 
-axios.defaults.baseURL = process.env.VUE_APP_SERVER_URL_BASE;
-/**
- * Other components send data via this.$axios
- * @type {AxiosStatic|{CancelTokenSource: CancelTokenSource, Axios: Axios, CancelStatic: CancelStatic, HeadersDefaults: HeadersDefaults, AxiosDefaults: AxiosDefaults, AxiosProxyConfig: AxiosProxyConfig, AxiosResponseTransformer: AxiosResponseTransformer, AxiosStatic: AxiosStatic, AxiosRequestConfig: AxiosRequestConfig, AxiosRequestTransformer: AxiosRequestTransformer, AxiosRequestHeaders: AxiosRequestHeaders, Cancel: Cancel, AxiosInstance: AxiosInstance, AxiosError: AxiosError, Method: Method, AxiosPromise: AxiosPromise, CancelTokenStatic: CancelTokenStatic, AxiosBasicCredentials: AxiosBasicCredentials, ResponseType: ResponseType, CancelToken: CancelToken, AxiosInterceptorManager: AxiosInterceptorManager, TransitionalOptions: TransitionalOptions, Canceler: Canceler, AxiosResponse: AxiosResponse, AxiosResponseHeaders: AxiosResponseHeaders, AxiosAdapter: AxiosAdapter}|AxiosStatic}
- */
-window.jQuery = $;
-window.$ = $;
-window.Vue = Vue;
-Vue.prototype.$axios = axios;
-Vue.config.productionTip = false;
-Vue.use(BaiduMap, {
-  /* Visit http://lbsyun.baidu.com/apiconsole/key for details about app key. */
-  ak: "g5f0bc3uZ0mKzHptwS1ugqMQ"
-});
+const app = createApp(App)
+app.config.globalProperties.$axios = axios
+app.config.globalProperties.$ = $
+app.config.globalProperties.$message = ElMessage
+app.use(router)
 
-Vue.use(ElementUI);
-let app = new Vue({
-  render: h => h(App),
-  router
-}).$mount("#app");
+// element plus
+app.use(ElMessage)
+app.use(ElButton)
+app.use(ElForm)
+app.use(ElFormItem)
+app.use(ElSelect)
+app.use(ElOption)
+app.use(ElDescriptions)
+app.use(ElTabPane)
+app.use(ElFooter)
+app.use(ElContainer)
+app.use(ElTabs)
+app.use(ElDatePicker)
+app.use(ElTable)
+app.use(ElAside)
+app.use(ElIcon)
 
-
+app.mount('#app')

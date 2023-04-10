@@ -1,19 +1,15 @@
-import Vue from 'vue'
-import MapVisual from '../components/MapVisual'
-import VueRouter from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import MapVisual from '../views/MapVisual.vue'
 
-
-Vue.use(VueRouter)
-const router =  new VueRouter({
-    routes: [
-        {
-            path: '/',
-            name: 'MapVisual',
-            component: ()=>import('@/components/MapVisual.vue'),
-        }
-    ],
-    mode: 'history',
-    base: '/bus/'
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: MapVisual
+    },
+  ]
 })
 
-export default router;
+export default router

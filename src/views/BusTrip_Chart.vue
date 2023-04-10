@@ -151,7 +151,7 @@ export default {
          * @get, url = "/realTime/tripSpeed"
          * @dataType List<SpeedDateVo>
          */
-        await _this.$axios.post("/realTime/tripSpeed", {idList: tripList, dateStr: date}).then(response=>{
+        await _this.$axios.post("/api/realTime/tripSpeed", {idList: tripList, dateStr: date}).then(response=>{
           if(response && response.status == 200) {
             let tripDataList = response.data;
             _this.tripsId = [];
