@@ -1,7 +1,7 @@
 <template>
     <div id="root">
         <el-container>
-            <el-aside :width="isCollapseLeft ? '0px' : '350px'" style="transition:width .1s" id="asideLeft">
+            <el-aside :width="isCollapseLeft ? '0px' : '350px'" id="asideLeft">
                 <el-tabs v-model="activeName" @tab-click="handleClick">
                     <el-tab-pane label="Real-time Analysis Panel" name="first">
                         <el-form>
@@ -165,9 +165,7 @@
                             <el-button id="clearDrawButton" @click="clearAllDraw" type="info">Clear Draw
                             </el-button
                             >
-                            <!--                            <div id="baiduMap"></div>-->
-                            <!--                            <baidu-map id="baiduMap"></baidu-map>-->
-                            <BaiduMap/>
+                            <div id="baiduMap"></div>
                             <div id="detailWindow" ref="detailWindow">
                                 <div id="infoWindow">
                                     <i
@@ -266,6 +264,10 @@ export default {
                 totalPoints: [],
                 stopData: [],
             },
+            // routeID 对应的路线信息
+            routeTraj: new Map(),
+            // 过滤可见的路线
+            visibleRoute: new Map(),
             map: {},
             timeSpan: [],
             stopList: [],
@@ -365,16 +367,32 @@ export default {
          */
         async initMap() {
             let _this = this
-            // map = BaiduMap.baiduMap()
             _this.map = new BMap.Map('baiduMap', {
                 enableMapClick: false,
             })
+            _this.map.setMapStyle({ style: 'light' })
+            _this.map.centerAndZoom(new BMap.Point(-73.88601, 40.880624), 13) //set map center and zoom
+            _this.map.enableScrollWheelZoom(true);
 
+            ['dragging', 'dragstart', 'dragend', 'zoomstart', 'zoomend'].forEach(
+              function(item) {
+                  _this.map.addEventListener(item, () => {
+                      if (_this.$refs.detailWindow.style.display === 'block') {
+                          _this.setDetailWindowPosition()
+                      }
+                  })
+              },
+            )
+            const navigation = new BMap.NavigationControl({
+                //init the navigation
+                anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
+                type: BMAP_NAVIGATION_CONTROL_SMALL,
+            })
             _this.addDrawer()
             _this.listAllRoutesIdOption()
+            _this.map.addControl(navigation) //add navigation control to map
             await _this.displayRouteShapeAndSpeed_Canvas()
             await _this.displayVehicle_Canvas() //canvas Layer for busVehicle
-
         },
         showLegend() {
             //init canvas for vehicle speed legend
@@ -486,15 +504,15 @@ export default {
              * @dataType List<String>
              */
             this.$axios
-                .get('/api/realtime/latest')
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        _this.realTimeRouteOptions = response.data
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get('/api/realtime/latest')
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      _this.realTimeRouteOptions = response.data
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
         },
         /**
          * get tripOptions by routeId
@@ -513,25 +531,25 @@ export default {
              * @dataType List<String>
              */
             this.$axios
-                .get(
-                    '/api/realTime/tripOptions/?routeId=' +
-                    _this.realTimeRouteId +
-                    '&date=' +
-                    _this.realTimeDate,
-                )
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        _this.realTimeTripOptions = response.data
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get(
+                '/api/realTime/tripOptions/?routeId=' +
+                _this.realTimeRouteId +
+                '&date=' +
+                _this.realTimeDate,
+              )
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      _this.realTimeTripOptions = response.data
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
         },
         addDrawer() {
             let _this = this
             //drawer setting
-            const drawer = new BMapLib.DrawingManager(_this.$refs.BaiduMap.map.value, {
+            const drawer = new BMapLib.DrawingManager(_this.map, {
                 isOpen: false, // disable drawing mode
                 enableDrawingTool: true, // displayOnInit tool bar
                 drawingToolOptions: {
@@ -551,14 +569,14 @@ export default {
                 rectangleOptions: rectStyle,
             })
             //after line draw complete
-            let lineComplete = function (line) {
+            let lineComplete = (line) => {
                 let point = line.getPath()[0]
                 let opts = {
                     position: point,
                 }
                 let label = new BMap.Label(
-                    'path: ' + _this.drawerData.line_polygons.length,
-                    opts,
+                  'path: ' + _this.drawerData.line_polygons.length,
+                  opts,
                 )
                 label.setStyle({
                     color: 'red',
@@ -569,6 +587,17 @@ export default {
                 _this.map.addOverlay(label)
                 _this.drawerData.line_label.push(label)
                 _this.drawerData.line_polygons.push(line)
+                _this.$axios.post('/api/query/line', {
+                    points: line.getPath(),
+                }).then((resp) => {
+                    if (resp && resp.status === 200) {
+                        this.handleQuery(resp.data)
+                    } else {
+                        this.dealResponse(resp)
+                    }
+                }).catch(err => {
+                    this.dealError(err)
+                })
                 //drawline API
             }
             //after rect draw complete
@@ -620,7 +649,7 @@ export default {
                     height: '0px',
                     width: '0px',
                 })
-                BaiduMap.map.value.addOverlay(label)
+                _this.map.addOverlay(label)
                 _this.drawerData.marker_label.push(label)
                 _this.drawerData.marker_points.push(point)
                 _this.drawerData.marker_polygons.push(marker)
@@ -646,7 +675,7 @@ export default {
             await _this.updateVehicleData()
             _this.timer = setInterval(this.updateVehicleData, 1000 * 20)
             _this.mapLayers.canvasLayerBusVehicle = new CanvasLayer({
-                map: BaiduMap.map.value,
+                map: _this.map,
                 update: _this.updateCanvasBusVehicle,
                 zIndex: CANVAS_ZINDEX_VEHICLE, //make sure the layer's index is high enough to trigger the mouse methods
             })
@@ -754,42 +783,48 @@ export default {
              * @dataType List<RouteShapeSpeedVo>
              */
             await this.$axios
-                .get('/api/routes/speed')
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        allShapeList = response.data
-                        //Foreach shape
-                        allShapeList.forEach((shape) => {
-                            let pointsList = []
-                            let speedList = []
-                            let splitTraj = shape.trajJsonModels
-                            var coordinatesList = []
-                            let speedIdx = 0
-                            splitTraj.forEach((traj) => {
-                                let tempList = traj.geometry.coordinates
-                                coordinatesList = coordinatesList.concat(tempList)
-                                for (let i = 0; i < tempList.length; i++) {
-                                    let bp = new BMap.Point(tempList[i][0], tempList[i][1])
-                                    speedList.push(shape.speeds[speedIdx])
-                                    pointsList.push(bp)
-                                }
-                            })
-                            var trajSum = {
-                                geometry: {
-                                    type: 'LineString',
-                                    coordinates: coordinatesList,
-                                },
-                            }
-                            _this.turfLineStrings.push(turf.lineString(coordinatesList))
-                            _this.trajData.trajectories.push(trajSum)
-                            _this.trajData.totalPoints.push(pointsList)
-                            _this.trajData.weights.push(speedList)
-                        })
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get('/api/routes/speed')
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      allShapeList = response.data
+                      //Foreach shape
+                      allShapeList.forEach((shape) => {
+                          let pointsList = []
+                          let speedList = []
+                          let splitTraj = shape.trajJsonModels
+                          var coordinatesList = []
+                          let speedIdx = 0
+                          splitTraj.forEach((traj) => {
+                              let tempList = traj.geometry.coordinates
+                              coordinatesList = coordinatesList.concat(tempList)
+                              for (let i = 0; i < tempList.length; i++) {
+                                  let bp = new BMap.Point(tempList[i][0], tempList[i][1])
+                                  speedList.push(shape.speeds[speedIdx])
+                                  pointsList.push(bp)
+                              }
+                          })
+                          var trajSum = {
+                              geometry: {
+                                  type: 'LineString',
+                                  coordinates: coordinatesList,
+                              },
+                          }
+                          _this.turfLineStrings.push(turf.lineString(coordinatesList))
+                          _this.trajData.trajectories.push(trajSum)
+                          let entity = {
+                              speed: speedList[0], // 只需要一个速度即可
+                              points: pointsList,
+                          }
+                          _this.routeTraj.set(shape.routeId, entity)
+                          _this.visibleRoute.set(shape.routeId, entity)
+                          _this.trajData.totalPoints.push(pointsList)
+                          _this.trajData.weights.push(speedList)
+                      })
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
             // _this.mapLayers.canvasLayerBack = new CanvasLayer({
             //   map: _this.map,
             //   update: _this.updateCanvasBack,
@@ -824,25 +859,25 @@ export default {
              * @dataType List<RoutesVo>
              */
             await this.$axios
-                .get('/api/mapv/transitnetwork')
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        routes = response.data
-                        //Foreach route
-                        routes.forEach((route) => {
-                            _this.trajData.trajectories.push(route.trajJsonModel)
-                        })
-                        let dataSet = new mapv.DataSet(_this.trajData.trajectories)
-                        _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
-                            _this.map,
-                            dataSet,
-                            mapVOptions.mapv_bus_line_light_green,
-                        )
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get('/api/mapv/transitnetwork')
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      routes = response.data
+                      //Foreach route
+                      routes.forEach((route) => {
+                          _this.trajData.trajectories.push(route.trajJsonModel)
+                      })
+                      let dataSet = new mapv.DataSet(_this.trajData.trajectories)
+                      _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
+                        _this.map,
+                        dataSet,
+                        mapVOptions.mapv_bus_line_light_green,
+                      )
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
 
             // _this.mapLayers.canvasLayerLine = new CanvasLayer({
             //   map: _this.map,
@@ -871,33 +906,33 @@ export default {
              * @dataType List<RoutesVo>
              */
             this.$axios
-                .get(
-                    '/api/mapv/timespan/?startDate=' +
-                    _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
-                    '&endDate=' +
-                    _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-'),
-                )
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        routes = response.data
-                        //push each Route to trajetories
-                        routes.forEach((route) => {
-                            _this.trajData.trajectories.push(route.trajJsonModel)
-                        })
-                        //check the routes
-                        if (routes.length === 0) {
-                            this.$message({
-                                message: 'The bus service list in this timeSpan is empty',
-                                type: 'warning',
-                            })
-                            return
-                        }
-                        _this.displayMapvLineLayer()
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get(
+                '/api/mapv/timespan/?startDate=' +
+                _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
+                '&endDate=' +
+                _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-'),
+              )
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      routes = response.data
+                      //push each Route to trajetories
+                      routes.forEach((route) => {
+                          _this.trajData.trajectories.push(route.trajJsonModel)
+                      })
+                      //check the routes
+                      if (routes.length === 0) {
+                          this.$message({
+                              message: 'The bus service list in this timeSpan is empty',
+                              type: 'warning',
+                          })
+                          return
+                      }
+                      _this.displayMapvLineLayer()
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
         },
         /**
          * @description list all RoutesId Option for
@@ -909,21 +944,21 @@ export default {
              * @dataType List<RoutesEntity>
              */
             this.$axios
-                .get('/api/routes')
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        _this.routeIdOptions = response.data
-                        if (_this.routeIdOptions.length === 0) {
-                            _this.$message({
-                                message: 'The bus route list is empty',
-                                type: 'warning',
-                            })
-                        }
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get('/api/routes')
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      _this.routeIdOptions = response.data
+                      if (_this.routeIdOptions.length === 0) {
+                          _this.$message({
+                              message: 'The bus route list is empty',
+                              type: 'warning',
+                          })
+                      }
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
         },
         /**
          *@description list RoutesId option by timespan
@@ -935,26 +970,26 @@ export default {
              * @dataType List<RoutesEntity>
              */
             this.$axios
-                .get(
-                    '/api/routes/timespan?startDate=' +
-                    _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
-                    '&endDate=' +
-                    _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-'),
-                )
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        _this.routeIdOptions = response.data
-                        if (_this.routeIdOptions.length === 0) {
-                            _this.$message({
-                                message: 'The bus route list for this timeSpan is empty',
-                                type: 'warning',
-                            })
-                        }
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get(
+                '/api/routes/timespan?startDate=' +
+                _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
+                '&endDate=' +
+                _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-'),
+              )
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      _this.routeIdOptions = response.data
+                      if (_this.routeIdOptions.length === 0) {
+                          _this.$message({
+                              message: 'The bus route list for this timeSpan is empty',
+                              type: 'warning',
+                          })
+                      }
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
         },
         /**
          * @description list trips options
@@ -984,21 +1019,21 @@ export default {
              * @dataType List<TripsEntity>
              */
             this.$axios
-                .get('/api/trips?routeId=' + _this.curRouteId)
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        _this.tripIdOptions = response.data
-                        if (_this.tripIdOptions.length === 0) {
-                            _this.$message({
-                                message: 'The bus trip list for this route is empty',
-                                type: 'warning',
-                            })
-                        }
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get('/api/trips?routeId=' + _this.curRouteId)
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      _this.tripIdOptions = response.data
+                      if (_this.tripIdOptions.length === 0) {
+                          _this.$message({
+                              message: 'The bus trip list for this route is empty',
+                              type: 'warning',
+                          })
+                      }
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
         },
         /**
          * @description list trips options by routeid and timespan
@@ -1010,29 +1045,29 @@ export default {
              * @datatype List<TripsEntity>
              */
             this.$axios
-                .get(
-                    '/api/trips/timespan?routeId=' +
-                    _this.curRouteId +
-                    '&startDate=' +
-                    _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
-                    '&endDate=' +
-                    _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-'),
-                )
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        _this.tripIdOptions = response.data
-                        if (_this.tripIdOptions.length === 0) {
-                            _this.$message({
-                                message:
-                                    'The bus trip list for this route and timespan is empty',
-                                type: 'warning',
-                            })
-                        }
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get(
+                '/api/trips/timespan?routeId=' +
+                _this.curRouteId +
+                '&startDate=' +
+                _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
+                '&endDate=' +
+                _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-'),
+              )
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      _this.tripIdOptions = response.data
+                      if (_this.tripIdOptions.length === 0) {
+                          _this.$message({
+                              message:
+                                'The bus trip list for this route and timespan is empty',
+                              type: 'warning',
+                          })
+                      }
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
         },
         /**
          * @description get one trajectory by routeId and tripId
@@ -1062,68 +1097,68 @@ export default {
              * @dataType RoutesVo
              */
             this.$axios
-                .get(
-                    '/api/mapv/?routeId=' + _this.curRouteId + '&tripId=' + _this.curTripId,
-                )
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        _this.trajData.trajectories.push(response.data.trajJsonModel)
-                        //warning message
-                        if (
-                            _this.trajData.trajectories[0].geometry.coordinates.length === 0
-                        ) {
-                            this.$message({
-                                message: 'Please Check Matched RouteId and TripId are selected',
-                                type: 'error',
-                            })
-                            return
-                        }
-                        this.$message({
-                            message: 'The selected trajectory is loading, please wait',
-                            type: 'success',
-                        })
-                        let dataSet = new mapv.DataSet(_this.trajData.trajectories)
-                        let curGeometry = _this.trajData.trajectories[0].geometry
-                        let centerPoint = new BMap.Point(
-                            curGeometry.coordinates[0][0],
-                            curGeometry.coordinates[0][1],
-                        )
-                        _this.map.centerAndZoom(centerPoint, 14)
-                        _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
-                            _this.map,
-                            dataSet,
-                            mapVOptions.mapv_bus_line_light_green,
-                        )
-                        let pointsList = []
-                        for (let i = 0; i < curGeometry.coordinates.length; i++) {
-                            let bp = new BMap.Point(
-                                curGeometry.coordinates[i][0],
-                                curGeometry.coordinates[i][1],
-                            )
-                            pointsList.push(bp)
-                        }
-                        _this.trajData.totalPoints.push(pointsList)
-                        //init CanvasLayers
-                        // _this.mapLayers.canvasLayerBack = new CanvasLayer({
-                        //   map: _this.map,
-                        //   update: _this.updateCanvasBack,
-                        //   zIndex: CANVAS_ZINDEX_LINE-1,
-                        // });
-                        // _this.mapLayers.canvasLayerLine = new CanvasLayer({
-                        //   map: _this.map,
-                        //   update: _this.updateCanvasLine_roadSpeed
-                        //   zIndex: CANVAS_ZINDEX_LINE
-                        // });
-                        _this.mapLayers.canvasLayerPointer = new CanvasLayer({
-                            map: _this.map,
-                            update: _this.updateCanvasPointer,
-                            zIndex: CANVAS_ZINDEX_LINE + 1,
-                        })
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get(
+                '/api/mapv/?routeId=' + _this.curRouteId + '&tripId=' + _this.curTripId,
+              )
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      _this.trajData.trajectories.push(response.data.trajJsonModel)
+                      //warning message
+                      if (
+                        _this.trajData.trajectories[0].geometry.coordinates.length === 0
+                      ) {
+                          this.$message({
+                              message: 'Please Check Matched RouteId and TripId are selected',
+                              type: 'error',
+                          })
+                          return
+                      }
+                      this.$message({
+                          message: 'The selected trajectory is loading, please wait',
+                          type: 'success',
+                      })
+                      let dataSet = new mapv.DataSet(_this.trajData.trajectories)
+                      let curGeometry = _this.trajData.trajectories[0].geometry
+                      let centerPoint = new BMap.Point(
+                        curGeometry.coordinates[0][0],
+                        curGeometry.coordinates[0][1],
+                      )
+                      _this.map.centerAndZoom(centerPoint, 14)
+                      _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
+                        _this.map,
+                        dataSet,
+                        mapVOptions.mapv_bus_line_light_green,
+                      )
+                      let pointsList = []
+                      for (let i = 0; i < curGeometry.coordinates.length; i++) {
+                          let bp = new BMap.Point(
+                            curGeometry.coordinates[i][0],
+                            curGeometry.coordinates[i][1],
+                          )
+                          pointsList.push(bp)
+                      }
+                      _this.trajData.totalPoints.push(pointsList)
+                      //init CanvasLayers
+                      // _this.mapLayers.canvasLayerBack = new CanvasLayer({
+                      //   map: _this.map,
+                      //   update: _this.updateCanvasBack,
+                      //   zIndex: CANVAS_ZINDEX_LINE-1,
+                      // });
+                      // _this.mapLayers.canvasLayerLine = new CanvasLayer({
+                      //   map: _this.map,
+                      //   update: _this.updateCanvasLine_roadSpeed
+                      //   zIndex: CANVAS_ZINDEX_LINE
+                      // });
+                      _this.mapLayers.canvasLayerPointer = new CanvasLayer({
+                          map: _this.map,
+                          update: _this.updateCanvasPointer,
+                          zIndex: CANVAS_ZINDEX_LINE + 1,
+                      })
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
             _this.displayStopData.stopIdList = []
             _this.displayStopData.stopNameList = []
             _this.displayStopData.stopTimeList = []
@@ -1133,76 +1168,76 @@ export default {
              * @dataType List<StopsVo>
              */
             this.$axios
-                .get('/api/stops/?tripId=' + _this.curTripId)
-                .then((response) => {
-                    if (response && response.status === 200) {
-                        let tempStopData = (_this.stopList = response.data)
-                        //process stop data to geometry
-                        for (let i = 0; i < tempStopData.length; i++) {
-                            _this.trajData.stopData.push({
-                                geometry: tempStopData[i].pointJsonModel.geometry,
-                                id: tempStopData[i].stopId,
-                                name: tempStopData[i].stopName,
-                                time: tempStopData[i].arrivalTime,
-                            })
-                        }
-                        let dataSet = new mapv.DataSet(_this.trajData.stopData)
-                        let option = mapVOptions.mapv_option_stop
-                        _this.mapLayers.canvasLayerStopText = new CanvasLayer({
-                            map: _this.map,
-                            update: _this.updateCanvasStop,
-                            zIndex: 5,
-                        })
-                        let stopMouseMove = function (item) {
-                            let layer = _this.mapLayers.canvasLayerStopText
-                            if (!layer.zr) {
-                                layer.zr = zrender.init(layer.canvas)
-                                layer.zr.resize()
-                            }
-                            if (
-                                item !== null &&
-                                _this.displayStopData.stopIdList.indexOf(item.id) === -1
-                            ) {
-                                _this.displayStopData.stopIdList.push(item.id)
-                                _this.displayStopData.stopNameList.push(item.name)
-                                _this.displayStopData.stopTimeList.push(item.time)
-                                let point = new BMap.Point(
-                                    item.geometry.coordinates[0],
-                                    item.geometry.coordinates[1],
-                                )
-                                _this.displayStopData.stopPointList.push(point)
-                                let pixel = _this.map.pointToPixel(point)
-                                let text = new zrender.Text({
-                                    style: {
-                                        textFill: 'rgb(0,0,0)',
-                                        text: item.name + ' ' + item.time,
-                                        fontSize: 14,
-                                    },
-                                    position: [pixel.x + 10, pixel.y + 10],
-                                })
-                                layer.zr.add(text)
-                                setTimeout(() => {
-                                    let tempIdx = _this.displayStopData.stopIdList.indexOf(
-                                        item.id,
-                                    )
-                                    _this.displayStopData.stopIdList.splice(tempIdx, 1)
-                                    _this.displayStopData.stopNameList.splice(tempIdx, 1)
-                                    _this.displayStopData.stopPointList.splice(tempIdx, 1)
-                                    _this.displayStopData.stopTimeList.splice(tempIdx, 1)
-                                }, 5000)
-                            }
-                        }
-                        option.methods.mousemove = stopMouseMove
-                        _this.mapLayers.stopLayer = new mapv.baiduMapLayer(
-                            _this.map,
-                            dataSet,
-                            option,
-                        )
-                    } else _this.dealResponse(response)
-                })
-                .catch((error) => {
-                    _this.dealError(error)
-                })
+              .get('/api/stops/?tripId=' + _this.curTripId)
+              .then((response) => {
+                  if (response && response.status === 200) {
+                      let tempStopData = (_this.stopList = response.data)
+                      //process stop data to geometry
+                      for (let i = 0; i < tempStopData.length; i++) {
+                          _this.trajData.stopData.push({
+                              geometry: tempStopData[i].pointJsonModel.geometry,
+                              id: tempStopData[i].stopId,
+                              name: tempStopData[i].stopName,
+                              time: tempStopData[i].arrivalTime,
+                          })
+                      }
+                      let dataSet = new mapv.DataSet(_this.trajData.stopData)
+                      let option = mapVOptions.mapv_option_stop
+                      _this.mapLayers.canvasLayerStopText = new CanvasLayer({
+                          map: _this.map,
+                          update: _this.updateCanvasStop,
+                          zIndex: 5,
+                      })
+                      let stopMouseMove = function(item) {
+                          let layer = _this.mapLayers.canvasLayerStopText
+                          if (!layer.zr) {
+                              layer.zr = zrender.init(layer.canvas)
+                              layer.zr.resize()
+                          }
+                          if (
+                            item !== null &&
+                            _this.displayStopData.stopIdList.indexOf(item.id) === -1
+                          ) {
+                              _this.displayStopData.stopIdList.push(item.id)
+                              _this.displayStopData.stopNameList.push(item.name)
+                              _this.displayStopData.stopTimeList.push(item.time)
+                              let point = new BMap.Point(
+                                item.geometry.coordinates[0],
+                                item.geometry.coordinates[1],
+                              )
+                              _this.displayStopData.stopPointList.push(point)
+                              let pixel = _this.map.pointToPixel(point)
+                              let text = new zrender.Text({
+                                  style: {
+                                      textFill: 'rgb(0,0,0)',
+                                      text: item.name + ' ' + item.time,
+                                      fontSize: 14,
+                                  },
+                                  position: [pixel.x + 10, pixel.y + 10],
+                              })
+                              layer.zr.add(text)
+                              setTimeout(() => {
+                                  let tempIdx = _this.displayStopData.stopIdList.indexOf(
+                                    item.id,
+                                  )
+                                  _this.displayStopData.stopIdList.splice(tempIdx, 1)
+                                  _this.displayStopData.stopNameList.splice(tempIdx, 1)
+                                  _this.displayStopData.stopPointList.splice(tempIdx, 1)
+                                  _this.displayStopData.stopTimeList.splice(tempIdx, 1)
+                              }, 5000)
+                          }
+                      }
+                      option.methods.mousemove = stopMouseMove
+                      _this.mapLayers.stopLayer = new mapv.baiduMapLayer(
+                        _this.map,
+                        dataSet,
+                        option,
+                      )
+                  } else _this.dealResponse(response)
+              })
+              .catch((error) => {
+                  _this.dealError(error)
+              })
         },
         /**
          * @description display the stop text label
@@ -1324,27 +1359,28 @@ export default {
             //draw vehicle points
             for (let k = 0; k < weights.length; k++) {
                 const pixel = that.map.pointToPixel(points[k])
+                var pointSize = that.map.getZoom() > 15 ? 6 : 10
                 let circle = new zrender.Circle({
                     shape: {
                         cx: pixel.x,
                         cy: pixel.y,
-                        r: 10,
+                        r: pointSize,
                     },
                     style: {
                         fill: getVehicleColor(weights[k]),
                         stroke: '#faf9f9', //'#2e2d2d'
                     },
-                    onclick: async function () {
+                    onclick: async function() {
                         that.$message({
                             message: 'Loading the detailWindow',
                             type: 'success',
                         })
-                        that.curVehicle.curVehiclePoint = points[k]
-                        that.curVehicle.curVehicleInfo = infos[k]
-                        await that.curVehicleChartPrepare(k)
-                        that.$refs.speedChart.updateSpeedChartVehicleData()
-                        that.showDetailWindow()
-                        that.setDetailWindowPosition()
+                        // that.curVehicle.curVehiclePoint = points[k]
+                        // that.curVehicle.curVehicleInfo = infos[k]
+                        // await that.curVehicleChartPrepare(k)
+                        // that.$refs.speedChart.updateSpeedChartVehicleData()
+                        // that.showDetailWindow()
+                        // that.setDetailWindowPosition()
                     },
                 })
                 _this.zr.add(circle)
@@ -1401,7 +1437,7 @@ export default {
              */
             await _this.$axios
                 .get(
-                    '/realTime/speed/?vehicleId=' +
+                    '/api/realTime/speed/?vehicleId=' +
                     vehicleId +
                     '&curTime=' +
                     _this.realTimeDate +
@@ -1551,7 +1587,6 @@ export default {
          * @for CanvasLayerLine
          */
         async updateCanvasLine_roadSpeed() {
-            //init the canvas
             let that = this
             let _this = this.mapLayers.canvasLayerLine
             if (!_this.zr) {
@@ -1559,97 +1594,31 @@ export default {
             } else {
                 _this.zr.clear()
             }
-            _this.zr.resize() // adaptive setting
-            let markerLen = that.drawerData.marker_points.length
-            if (markerLen > 0) {
-                await that.selectNearestTraj(
-                    that.drawerData.marker_points[markerLen - 1],
-                    10,
-                )
-                for (let k = 0; k < that.nearestTrajData.totalPoints.length; k++) {
-                    let pointsList = that.nearestTrajData.totalPoints[k]
-                    let weight =
-                        that.nearestTrajData.weights[k].length > 0
-                            ? that.trajData.weights[k][0]
-                            : 0
-                    var points = []
-                    if (pointsList.length !== 0) {
-                        for (let i = 0, len = pointsList.length; i < len; i += 1) {
-                            let pixel = that.map.pointToPixel(pointsList[i])
-                            points.push([pixel.x, pixel.y])
-                        } //get points list of traj
-                        let line = new zrender.Polyline({
-                            style: {
-                                stroke: getTrajColorByValue(weight),
-                                lineWidth: 3.5,
-                                shadowColor: '#000',
-                                shadowBlur: 2,
-                            },
-                            shape: {
-                                points: points,
-                                smooth: 1,
-                            },
-                        })
-                        _this.zr.add(line)
-                    }
+            _this.zr.resize()
+            that.visibleRoute.forEach(route => {
+                let points = []
+                for (let i = 0; i < route.points.length; i++) {
+                    let pixel = that.map.pointToPixel(route.points[i])
+                    points.push([pixel.x, pixel.y])
                 }
-            } else {
-                for (let k = 0; k < that.trajData.totalPoints.length; k++) {
-                    let pointsList = that.trajData.totalPoints[k]
-                    let weight =
-                        that.trajData.weights[k].length > 0
-                            ? that.trajData.weights[k][0]
-                            : 0
-                    var points = []
-                    if (pointsList.length !== 0) {
-                        for (let i = 0, len = pointsList.length; i < len; i += 1) {
-                            let pixel = that.map.pointToPixel(pointsList[i])
-                            points.push([pixel.x, pixel.y])
-                        }
-                        let line = new zrender.Polyline({
-                            style: {
-                                stroke: getTrajColorByValue(weight),
-                                lineWidth: 3.5,
-                                shadowColor: '#000',
-                                shadowBlur: 2,
-                            },
-                            shape: {
-                                points: points,
-                                smooth: 1,
-                            },
-                        })
-                        _this.zr.add(line)
-                    }
-                }
-            }
-            // var ctx = _this.mapLayers.canvasLayerLine.canvas.getContext('2d'); //init
-            // if (!ctx) return;
-            // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); //clear
-            // for (let k = 0; k < _this.trajData.totalPoints.length; k++) {
-            //   let pointsList = _this.trajData.totalPoints[k];
-            //   let weightList = _this.trajData.weights[k];
-            //   if (pointsList.length !== 0) {
-            //     for (let i = 0, len = pointsList.length; i < len - 2; i += 1) {
-            //       //init pixels
-            //       const pixel = _this.map.pointToPixel(pointsList[i]);
-            //       const nextPixel = _this.map.pointToPixel(pointsList[i + 1]);
-            //       ctx.beginPath();
-            //       ctx.moveTo(pixel.x, pixel.y); // move to the start pixel
-            //       ctx.lineCap = 'round';
-            //       ctx.lineWidth = 3;
-            //       //set gradient
-            //       const grd = ctx.createLinearGradient(pixel.x, pixel.y, nextPixel.x, nextPixel.y);
-            //       const nowValue = weightList[i]; //value weight
-            //       const nextValue = weightList[i + 1];
-            //       grd.addColorStop(0, getTrajColorByValue(nowValue));
-            //       grd.addColorStop(1, getTrajColorByValue(nextValue));
-            //       ctx.strokeStyle = grd;
-            //       ctx.lineTo(nextPixel.x, nextPixel.y);
-            //       ctx.stroke(); //to draw
-            //     }
-            //     // ctx.closePath();
-            //   }
-            // }
+                let line = new zrender.Polyline({
+                    style: {
+                        stroke: getTrajColorByValue(route.speed),
+                        lineWidth: 5.5,
+                        shadowColor: '#000',
+                        shadowBlur: 2,
+                    },
+                    shape: {
+                        points: points,
+                        smooth: 1,
+                    },
+                    onclick: function() {
+                        alert('111')
+                    },
+                    cursor: 'default',
+                })
+                _this.zr.add(line)
+            })
         },
         /**
          * @description updateCanvas Pointer
@@ -1751,16 +1720,19 @@ export default {
                 }
             }
         },
-        /**
-         * @description Change the active panel and output in the console
-         * @param tab
-         * @param event
-         */
-        handleClick(tab, event) {
-            console.log(tab, event)
-        },
+
         showDetailWindow() {
             this.$refs.detailWindow.style.display = 'block'
+        },
+        setDetailWindowPosition() {
+            //calculate the position
+            let curPixel = this.map.pointToPixel(this.curVehicle.curVehiclePoint)
+            let detailWindow = document.getElementById('detailWindow')
+            let top = curPixel.y - detailWindow.offsetHeight - 30
+            let left = curPixel.x - detailWindow.offsetWidth / 2
+            //set the detailWindow Position
+            this.$refs.detailWindow.style.top = top + 'px'
+            this.$refs.detailWindow.style.left = left + 'px'
         },
         /**
          * @description hidden detailwindow and clear the curVehicle data
@@ -1807,6 +1779,16 @@ export default {
             }
             console.log(error)
         },
+
+        async handleQuery(data) {
+            let that = this
+            let newMap = new Map()
+            data.routes.forEach((routeId) => {
+                newMap.set(routeId, that.routeTraj.get(routeId))
+            })
+            that.visibleRoute = newMap
+            that.updateCanvasLine_roadSpeed()
+        },
         /**
          * @description clear all drawer data and update the display
          */
@@ -1839,6 +1821,7 @@ export default {
                 points: [],
                 speeds: [],
             }
+            _this.visibleRoute = _this.routeTraj
             _this.updateCanvasLine_roadSpeed() //redraw
             _this.updateCanvasBusVehicle()
             let overlays = _this.map.getOverlays()
