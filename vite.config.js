@@ -12,6 +12,7 @@ import Inspect from 'vite-plugin-inspect'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: '/bus',
     plugins: [vue(),
         AutoImport({
             // Auto import functions from Vue, e.g. ref, reactive, toRef...

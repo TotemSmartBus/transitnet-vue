@@ -1,4 +1,3 @@
-
 //引入刚刚的配置好的axios拦截器
 import axios from '@/service/interceptors.service'
 import VueAxios from 'vue-axios'
@@ -10,7 +9,10 @@ const ApiService = {
   //   //设置api的baseURL
   //   Vue.axios.defaults.baseURL = ''
   // },
-
+  init() {
+    axios.defaults.baseURL = 'http://localhost:8090'
+    // axios.defaults.baseURL = process.env.VUE_APP_SERVER_ADDR
+  },
   //创建不同的网络请求方法
   get(resource, slug = '', params) {
     return axios.get(`${resource}/${slug}`, { params }).catch(error => {

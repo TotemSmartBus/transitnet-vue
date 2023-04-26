@@ -12,13 +12,15 @@ import {
 } from 'element-plus'
 import VueAxios from 'vue-axios'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-
+import ApiService from '@/service/api.service'
 
 const app = createApp(App)
 app.config.globalProperties.$axios = axios
 app.config.globalProperties.$ = $
 app.config.globalProperties.$message = ElMessage
 app.use(router)
+
+ApiService.init()
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
