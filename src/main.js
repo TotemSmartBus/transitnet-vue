@@ -11,6 +11,8 @@ import {
   ElTabs, ElTag, ElForm, ElButton, ElFormItem, ElSelect
 } from 'element-plus'
 import VueAxios from 'vue-axios'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
 
 const app = createApp(App)
 app.config.globalProperties.$axios = axios
@@ -18,6 +20,9 @@ app.config.globalProperties.$ = $
 app.config.globalProperties.$message = ElMessage
 app.use(router)
 
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
 
 app.use(VueAxios, axios)
 // element plus

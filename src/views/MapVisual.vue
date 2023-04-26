@@ -3,7 +3,7 @@
     <el-container>
       <el-aside :width="isCollapseLeft ? '0px' : '350px'"
                 style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
-        <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tabs v-model="activeName">
           <el-tab-pane label="Real-time Analysis" name="first">
             <el-form>
               <el-form-item label="Time">
@@ -157,7 +157,7 @@
           </el-tab-pane>
           <el-tab-pane label="Trajectory Search" name="trajectory-search">
             <TrajectorySearchTab :polyLines="drawerData.line_polygons" :labels="drawerData.line_label"
-                                 @handleQuery="handleQuery" @handleClearPath="handleClearPath" />
+                                 @handleQuery="handleQuery" />
           </el-tab-pane>
         </el-tabs>
       </el-aside>
@@ -169,8 +169,10 @@
               Route:{{ selectRouteId }}
             </el-tag>
             <el-button class="toggleButton" @click="toggleCollapseLeft">
-              <arrow-right v-if="isCollapseLeft" />
-              <arrow-left v-else />
+              <el-icon>
+                <ArrowRight v-if="isCollapseLeft" />
+                <ArrowLeft v-else />
+              </el-icon>
             </el-button>
             <div id="map_container" @mousemove="mouseMove">
               <div id="legendVehicle" ref="mapLegendVehicle"></div>
@@ -192,16 +194,11 @@
                 <div id="detailTail"></div>
               </div>
             </div>
-            <el-button
-              id="toggleRight"
-              class="toggleButton"
-              @click="toggleCollapseRight"
-              :icon="
-                isCollapseRight
-                  ? 'el-icon-d-arrow-left'
-                  : 'el-icon-d-arrow-right'
-              "
-            >
+            <el-button id="toggleRight" class="toggleButton" @click="toggleCollapseRight">
+              <el-icon>
+                <ArrowRight v-if="isCollapseRight" />
+                <ArrowLeft v-else />
+              </el-icon>
             </el-button>
           </el-main>
           <el-aside :width="isCollapseRight ? '0px' : '350px'"
@@ -253,7 +250,7 @@ import BusTime_Chart from './BusTime_Chart.vue'
 import BusSpeed_Chart from './BusSpeed_Chart.vue'
 import BusTrip_Chart from './BusTrip_Chart.vue'
 import * as turf from '@turf/turf'
-import { ArrowLeft } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import BaiduMap from '@/components/BaiduMap.vue'
 import { ElTag } from 'element-plus'
 import { polygon } from '@turf/turf'
@@ -274,6 +271,7 @@ import { polygon } from '@turf/turf'
 export default {
   name: 'MapVisual',
   components: {
+    ArrowRight,
     BaiduMap,
     ArrowLeft,
     BusTrip_Chart,
@@ -514,7 +512,7 @@ export default {
      */
     toggleCollapseRight() {
       this.isCollapseRight = !this.isCollapseRight
-      if (this.isCollapseRight === true) {
+      if (this.isCollapseRight) {
         document.getElementById('asideRight').style.width = '0'
       } else {
         document.getElementById('asideRight').style.width = '350px'
@@ -1813,7 +1811,7 @@ export default {
       let overlays = this.map.getOverlays()
       for (let i = 0; i < overlays.length; i++) {
         // remove path
-        if (overlays[i].content == 'path: '+index) {
+        if (overlays[i].content == 'path: ' + index) {
           this.map.removeOverlay(overlays[i])
         }
       }

@@ -33,14 +33,6 @@
             Query
           </el-button>
         </el-col>
-        <!-- 如果先删除再添加，则会导致 index 错乱，暂时不支持单个的删除操作 -->
-        <!--        <el-col :span="4">-->
-        <!--          <el-button type="danger" @click="handleClear(this)" id="clear">-->
-        <!--            <el-icon>-->
-        <!--              <Delete />-->
-        <!--            </el-icon>-->
-        <!--          </el-button>-->
-        <!--        </el-col>-->
       </el-row>
     </el-form-item>
   </el-form>
@@ -90,9 +82,6 @@ export default {
       }).catch(e => {
         console.error(e)
       })
-    },
-    handleClear: (that) => {
-      that.$emit('clearTrajectory', {})
     }
   }
 }

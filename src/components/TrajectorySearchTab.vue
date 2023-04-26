@@ -1,6 +1,6 @@
 <template>
   <div v-if="polyLines.length > 0" v-for="(line, rowIndex) in polyLines">
-    <TrajectorySearchForm :label="labels[rowIndex]" :points="line.getPath()" @receiveResult="receiveResult" @clearTrajectory="clearTrajectory(rowIndex)" />
+    <TrajectorySearchForm :label="labels[rowIndex]" :points="line.getPath()" @receiveResult="receiveResult" />
   </div>
   <h2 v-else>Please create a path on the map.</h2>
   <h3>Related Trips:</h3>
@@ -29,10 +29,6 @@ export default {
     receiveResult(data) {
       this.result = data
       this.$emit('handleQuery', data)
-    },
-    clearTrajectory(rowIndex) {
-      this.result = {}
-      this.$emit('handleClearPath', rowIndex)
     }
   }
 }
