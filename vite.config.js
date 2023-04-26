@@ -50,9 +50,13 @@ export default defineConfig({
 
         Inspect(),],
     resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
+        // alias: {
+        //     '@': fileURLToPath(new URL('./src', import.meta.url))
+        // }
+        alias: [{
+           find: '@',
+           replacement: path.resolve(__dirname, 'src')
+        }],
     },
     server: {
         port: 8085,

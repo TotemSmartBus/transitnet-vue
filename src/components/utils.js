@@ -38,7 +38,7 @@ export const mapVOptions = {
     }
 }
 export const CANVAS_ZINDEX_VEHICLE = 7
-export const CANVAS_ZINDEX_LINE = 4
+export const CANVAS_ZINDEX_LINE = 7
 export const DRAW_ZINDEX = 12
 export const LEGEND_DATA1 = [
         {
@@ -235,7 +235,7 @@ let rect_polygons = [];
 let draw_color ="rgb(60,60,60)";
 export const pathStyle = {
     strokeColor: draw_color,
-    strokeWeight: 3,             // width of the stroke
+    strokeWeight: 6,             // width of the stroke
     strokeOpacity: 0.8,
     strokeStyle: "white",        // solid or dashed
     zIndex: DRAW_ZINDEX
