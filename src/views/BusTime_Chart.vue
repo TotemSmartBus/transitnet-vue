@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 100%; height: 400px" id="busTime"></div>
+  <div style="width: 350px; height: 400px" id="busTime"></div>
 </template>
 
 <script>
@@ -243,6 +243,7 @@ export default {
           },
           series: _this.buildAllSeries(sourceData),
         }
+        chartDom.setAttribute("width", "100%")
         _this.BusTime_Chart.setOption(option)
       }).catch(error => {
         console.log(error)

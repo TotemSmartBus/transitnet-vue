@@ -10,7 +10,7 @@ const ApiService = {
   //   Vue.axios.defaults.baseURL = ''
   // },
   init() {
-    axios.defaults.baseURL = 'http://localhost:8090'
+    axios.defaults.baseURL = 'http://localhost:8090/api'
     // axios.defaults.baseURL = process.env.VUE_APP_SERVER_ADDR
   },
   //创建不同的网络请求方法

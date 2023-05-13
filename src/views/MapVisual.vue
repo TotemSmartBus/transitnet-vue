@@ -163,11 +163,11 @@
       </el-aside>
       <el-container>
         <el-container height="100%">
+          <el-tag v-model:visible="routeTipVisible"
+                  v-bind:style="{top: mouseY + 'px', left: mouseX + 'px', position: 'absolute', zIndex: 9999, display: routeTipVisible?'block':'none'}">
+            Route:{{ selectRouteId }}
+          </el-tag>
           <el-main>
-            <el-tag v-model:visible="routeTipVisible"
-                    v-bind:style="{top: mouseY + 'px', left: mouseX + 'px', position: 'absolute', zIndex: 9999, display: routeTipVisible?'block':'none'}">
-              Route:{{ selectRouteId }}
-            </el-tag>
             <el-button class="toggleButton" @click="toggleCollapseLeft">
               <el-icon>
                 <ArrowRight v-if="isCollapseLeft" />
@@ -181,11 +181,7 @@
               <div id="baiduMap"></div>
               <div id="detailWindow" ref="detailWindow">
                 <div id="infoWindow">
-                  <i
-                    id="closeButton"
-                    class="el-icon-close"
-                    @click="hiddenDetailWindow"
-                  ></i>
+                  <el-button id="closeButton" @click="hiddenDetailWindow" :icon="Close" circle />
                   <BusSpeed_Chart
                     v-bind:cur-vehicle="curVehicle"
                     ref="speedChart"
@@ -196,8 +192,8 @@
             </div>
             <el-button id="toggleRight" class="toggleButton" @click="toggleCollapseRight">
               <el-icon>
-                <ArrowRight v-if="isCollapseRight" />
-                <ArrowLeft v-else />
+                <ArrowLeft v-if="isCollapseRight" />
+                <ArrowRight v-else />
               </el-icon>
             </el-button>
           </el-main>
@@ -211,7 +207,7 @@
         </el-container>
         <el-footer height="260px">
           <el-container>
-            <div style="width: 100%; height: 260px">
+            <div style="width: 100%; height: 260px; overflow:scroll">
               <BusRoute_Chart ref="routeChart"></BusRoute_Chart>
               <BusTrip_Chart ref="tripChart"></BusTrip_Chart>
             </div>
@@ -250,23 +246,10 @@ import BusTime_Chart from './BusTime_Chart.vue'
 import BusSpeed_Chart from './BusSpeed_Chart.vue'
 import BusTrip_Chart from './BusTrip_Chart.vue'
 import * as turf from '@turf/turf'
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, Close } from '@element-plus/icons-vue'
 import BaiduMap from '@/components/BaiduMap.vue'
 import { ElTag } from 'element-plus'
 import { polygon } from '@turf/turf'
-
-// const routeTipVisible = ref(true)
-// const position = ref({
-//   top: 0,
-//   left: 0,
-//   bottom: 0,
-//   right: 0,
-// })
-// const routeTipRef = ref({
-//   getBoundingClientRect() {
-//     return this.position.value
-//   },
-// })
 
 export default {
   name: 'MapVisual',
@@ -274,6 +257,7 @@ export default {
     ArrowRight,
     BaiduMap,
     ArrowLeft,
+    Close,
     BusTrip_Chart,
     BusRoute_Chart,
     BusTime_Chart,
@@ -388,7 +372,11 @@ export default {
     _this.showLegend()
     // this.refreshData()
   },
-  computed: {},
+  computed: {
+    Close() {
+      return Close
+    }
+  },
   methods: {
     polygon,
     /**
@@ -695,7 +683,7 @@ export default {
       })
       let _this = this
       await _this.updateVehicleData()
-      _this.timer = setInterval(this.updateVehicleData, 1000 * 20)
+      _this.timer = setInterval(this.updateVehicleData, 1000 * 30)
       _this.mapLayers.canvasLayerBusVehicle = new CanvasLayer({
         map: _this.map,
         update: _this.updateCanvasBusVehicle,
@@ -1394,12 +1382,13 @@ export default {
               message: 'Loading the detailWindow',
               type: 'success'
             })
-            // that.curVehicle.curVehiclePoint = points[k]
-            // that.curVehicle.curVehicleInfo = infos[k]
-            // await that.curVehicleChartPrepare(k)
-            // that.$refs.speedChart.updateSpeedChartVehicleData()
-            // that.showDetailWindow()
-            // that.setDetailWindowPosition()
+            console.log(bearings[k])
+            that.curVehicle.curVehiclePoint = points[k]
+            that.curVehicle.curVehicleInfo = infos[k]
+            await that.curVehicleChartPrepare(k)
+            that.$refs.speedChart.updateSpeedChartVehicleData()
+            that.showDetailWindow()
+            that.setDetailWindowPosition()
           }
         })
         _this.zr.add(circle)
