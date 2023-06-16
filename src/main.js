@@ -16,7 +16,7 @@ import ApiService from '@/service/api.service'
 
 const app = createApp(App)
 app.config.globalProperties.$axios = axios
-axios.defaults.baseURL = 'http://localhost:8090'
+axios.defaults.baseURL = 'http://sheng.whu.edu.cn/bus'
 app.config.globalProperties.$ = $
 app.config.globalProperties.$message = ElMessage
 app.use(router)

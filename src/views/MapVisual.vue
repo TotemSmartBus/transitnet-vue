@@ -1,5 +1,6 @@
 <template>
   <div id="root">
+    <Notice />
     <el-container>
       <el-aside :width="isCollapseLeft ? '0px' : '350px'"
                 style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
@@ -250,6 +251,7 @@ import { ArrowLeft, ArrowRight, Close } from '@element-plus/icons-vue'
 import BaiduMap from '@/components/BaiduMap.vue'
 import { ElTag } from 'element-plus'
 import { polygon } from '@turf/turf'
+import Notice from '@/components/Notice.vue'
 
 export default {
   name: 'MapVisual',
@@ -262,7 +264,8 @@ export default {
     BusRoute_Chart,
     BusTime_Chart,
     BusSpeed_Chart,
-    ElTag
+    ElTag,
+    Notice,
   },
   data() {
     return {
@@ -529,11 +532,13 @@ export default {
         .then((response) => {
           if (response && response.status === 200) {
             _this.realTimeRouteOptions = response.data
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+          } else {
+            _this.dealResponse(response)
+          }
+        }).catch((error) => {
+        debugger
+        _this.dealError(error)
+      })
     },
     /**
      * get tripOptions by routeId
@@ -1472,7 +1477,7 @@ export default {
           let realTimeVehicleList = response.data
           realTimeVehicleList.forEach((realTimeVehicle) => {
             let tempVehicle = realTimeVehicle
-            let tempSpeed = realTimeVehicle.speed == 'Infinity' ? 0 : realTimeVehicle.speed.toFixed(2)
+            let tempSpeed = (typeof realTimeVehicle.speed) == 'number' ? realTimeVehicle.speed.toFixed(2) : 0
             if (_this.visualVehicles.vehicleIds.indexOf(tempVehicle.id) === -1) { //not exist
               _this.visualVehicles.vehicleIds.push(tempVehicle.id)
               _this.visualVehicles.speeds.push(tempSpeed)
@@ -1775,6 +1780,7 @@ export default {
           type: 'error'
         })
       } else {
+        debugger
         this.$message({
           message: 'Request sending failed',
           type: 'error'
