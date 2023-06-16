@@ -1,6 +1,6 @@
 <template>
   <div id="root">
-    <Notice />
+<!--    <Notice />-->
     <el-container>
       <el-aside :width="isCollapseLeft ? '0px' : '350px'"
                 style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
