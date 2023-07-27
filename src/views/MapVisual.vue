@@ -208,7 +208,7 @@ export default {
         enableMapClick: false
       })
       _this.map.setMapStyle({ style: 'light' })
-      _this.map.centerAndZoom(new BMap.Point(-73.95601, 40.712776), 13) //set map center and zoom
+      _this.map.centerAndZoom(new BMap.Point(-73.95601, 40.712776), 14) //set map center and zoom
       _this.map.enableScrollWheelZoom(true);
 
       ['dragging', 'dragstart', 'dragend', 'zoomstart', 'zoomend'].forEach(
