@@ -332,10 +332,12 @@ export default {
       curVehicle: {
         curVehiclePoint: undefined,
         curVehicleInfo: {
-          vehicleId: '',
-          routeId: '',
-          agencyId: '',
-          nextStop: '',
+          id: "",
+          routeID: "",
+          agencyID: "",
+          bearing: 0.0,
+          tripID: "",
+          nextStop: "",
           speed: 0.0
         },
         curVehicleSpeedList: []
@@ -536,7 +538,6 @@ export default {
             _this.dealResponse(response)
           }
         }).catch((error) => {
-        debugger
         _this.dealError(error)
       })
     },
@@ -644,7 +645,6 @@ export default {
       let markerComplete = function(marker) {
         let point = turf.point([marker.point.lng, marker.point.lat])
         let bp = new BMap.Point(marker.point.lng, marker.point.lat)
-        console.log(`lat=${marker.point.lat}&lon=${marker.point.lng}`)
         let opts = {
           position: bp
         }
@@ -1387,7 +1387,6 @@ export default {
               message: 'Loading the detailWindow',
               type: 'success'
             })
-            console.log(bearings[k])
             that.curVehicle.curVehiclePoint = points[k]
             that.curVehicle.curVehicleInfo = infos[k]
             await that.curVehicleChartPrepare(k)
@@ -1484,12 +1483,15 @@ export default {
               _this.visualVehicles.points.push(new BMap.Point(tempVehicle.lon, tempVehicle.lat))
               _this.visualVehicles.bearings.push(tempVehicle.bearing)
               _this.visualVehicles.vehicleInfos.push({
-                routeId: tempVehicle.routeId,
-                agencyId: tempVehicle.agencyId,
+                id: tempVehicle.id,
+                routeID: tempVehicle.routeID,
+                agencyID: tempVehicle.agencyID,
+                bearing: tempVehicle.bearing,
                 nextStop: tempVehicle.nextStop,
+                tripID: tempVehicle.tripID,
                 speed: tempSpeed,
                 recordedTime: tempVehicle.recordedTime,
-                vehicleId: tempVehicle.id
+                vehicleID: tempVehicle.id
               })
             } else {
               let curVIdx = _this.visualVehicles.vehicleIds.indexOf(tempVehicle.id)
@@ -1500,12 +1502,15 @@ export default {
               _this.visualVehicles.bearings[curVIdx] = tempVehicle.bearing
               _this.visualVehicles.speeds[curVIdx] = tempSpeed
               _this.visualVehicles.vehicleInfos[curVIdx] = {
-                routeId: tempVehicle.routeId,
-                agencyId: tempVehicle.agencyId,
+                id: tempVehicle.id,
+                routeID: tempVehicle.routeID,
+                agencyID: tempVehicle.agencyID,
+                bearing: tempVehicle.bearing,
                 nextStop: tempVehicle.nextStop,
+                tripID: tempVehicle.tripID,
                 speed: tempSpeed,
                 recordedTime: tempVehicle.recordedTime,
-                vehicleId: tempVehicle.id
+                vehicleID: tempVehicle.id
               }
               // }
             }
@@ -1749,10 +1754,12 @@ export default {
       this.$refs.detailWindow.style.display = 'none'
       this.curVehicle.curVehiclePoint = undefined
       this.curVehicle.curVehicleInfo = {
-        vehicleId: '',
-        routeId: '',
-        agencyId: '',
-        nextStop: '',
+        id: "",
+        routeID: "",
+        agencyID: "",
+        bearing: 0.0,
+        tripID: "",
+        nextStop: "",
         speed: 0.0
       }
     },
@@ -1780,7 +1787,6 @@ export default {
           type: 'error'
         })
       } else {
-        debugger
         this.$message({
           message: 'Request sending failed',
           type: 'error'

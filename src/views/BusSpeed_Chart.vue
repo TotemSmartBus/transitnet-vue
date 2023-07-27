@@ -1,8 +1,8 @@
 <template>
   <div style="width: 370px">
-    <el-descriptions :title="`${curVehicle.curVehicleInfo.vehicleId}`" :column = "2" class="Vehicle-des">
-      <el-descriptions-item label="RouteId">{{curVehicle.curVehicleInfo.routeId}}</el-descriptions-item>
-      <el-descriptions-item label="AgencyId">{{curVehicle.curVehicleInfo.agencyId}}</el-descriptions-item>
+    <el-descriptions :title="`${curVehicle.curVehicleInfo.id}`" :column = "2" class="Vehicle-des">
+      <el-descriptions-item label="RouteId">{{curVehicle.curVehicleInfo.routeID}}</el-descriptions-item>
+      <el-descriptions-item label="AgencyId">{{curVehicle.curVehicleInfo.agencyID}}</el-descriptions-item>
       <el-descriptions-item label="nextStop">{{curVehicle.curVehicleInfo.nextStop}}</el-descriptions-item>
       <el-descriptions-item label="speed">{{ curVehicle.curVehicleInfo.speed }} km/h</el-descriptions-item>
     </el-descriptions>
@@ -73,9 +73,11 @@ export default {
   props: {
     curVehicle:{
       curVehicleInfo: {
-        vehicleId: "",
-        routeId: "",
-        agencyId: "",
+        id: "",
+        routeID: "",
+        agencyID: "",
+        bearing: 0.0,
+        tripID: "",
         nextStop: "",
         speed: 0.0
       },

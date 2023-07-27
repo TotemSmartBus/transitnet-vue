@@ -63,12 +63,6 @@ export default defineConfig({
         port: 8085,
         open: false,
         https: false,
-        host: 'localhost',
-        proxy: {
-            '/api': {
-                target: 'http://sheng.whu.edu.cn/bus/api/',
-                changeOrigin: true,
-            }
-        }
+        host: 'localhost'
     }
 })
