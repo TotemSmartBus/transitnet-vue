@@ -6,7 +6,7 @@
       <el-descriptions-item label="nextStop">{{curVehicle.curVehicleInfo.nextStop}}</el-descriptions-item>
       <el-descriptions-item label="speed">{{ curVehicle.curVehicleInfo.speed }} km/h</el-descriptions-item>
     </el-descriptions>
-    <div style="width: 370px; height: 100px" ref="busSpeed"></div>
+<!--    <div style="width: 370px; height: 100px" ref="busSpeed"></div>-->
 <!--TODO 加入当前轨迹的查看-->
   </div>
 <!--TODO compare oneRoute different time, show more details-->
@@ -90,8 +90,6 @@ export default {
   methods: {
     init() {
       let _this = this;
-      _this.busSpeedChart = echarts.init(this.$refs.busSpeed);
-      _this.busSpeedChart.resize();
       let option;
       //x(hour) y(day) speed(s)
       //test data
@@ -180,7 +178,6 @@ export default {
           }
         ]
       };
-      option && _this.busSpeedChart.setOption(option);
     },
     updateSpeedChartVehicleData() {
       let _this = this;
@@ -191,8 +188,6 @@ export default {
         days.push(_this.curVehicle.curVehicleSpeedList[i].date);
         speedLists.push(_this.curVehicle.curVehicleSpeedList[i].speedList);
       }
-      var option = _this.busSpeedChart.getOption();
-      option.yAxis[0].data = days;
       _this.days = days;
       //concat speedList
       for(let i = 0; i < _this.curVehicle.curVehicleSpeedList.length; i ++) {
@@ -205,8 +200,6 @@ export default {
         }
         speedData = speedData.concat(curData);
       }
-      option.series[0].data = speedData;
-      _this.busSpeedChart.setOption(option);
     }
   }
 }

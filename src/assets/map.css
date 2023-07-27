@@ -158,7 +158,7 @@ img[src="http://api.map.baidu.com/images/iw3.png"] {
     /*width: 390px;*/
     /*padding: 20px;*/
     background-color: white;
-    height: 300px;
+    height: 150px;
     position: absolute;
     /*overflow-y:scroll;*/
     /*overflow-x:hidden;*/
@@ -166,7 +166,7 @@ img[src="http://api.map.baidu.com/images/iw3.png"] {
 }
 
 #infoWindow {
-    overflow-y: scroll;
+    overflow-y: hidden;
     overflow-x: hidden;
     /*margin: 20px;*/
     padding: 15px 20px 0 20px;
@@ -188,7 +188,7 @@ img[src="http://api.map.baidu.com/images/iw3.png"] {
 
 #closeButton {
     position: relative;
-    left: 329px;
+    left: 345px;
 }
 
 .el-table th.el-table__cell > .cell {

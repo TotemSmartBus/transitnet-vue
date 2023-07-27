@@ -1,220 +1,27 @@
 <template>
   <div id="root">
-<!--    <Notice />-->
-    <el-container>
-      <el-aside :width="isCollapseLeft ? '0px' : '350px'"
-                style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
-        <el-tabs v-model="activeName">
-          <el-tab-pane label="Real-time Analysis" name="first">
-            <el-form>
-              <el-form-item label="Time">
-                Real-time bus data will update over time
-              </el-form-item>
-              <div id="clockContainer">
-
-              </div>
-              <el-form-item>
-                <el-button @click="startDisplayVehicles">start</el-button>
-                <el-button @click="stopDisplayVehicles">stop</el-button>
-                <el-button @click="clearDisplayVehicles">clear</el-button>
-              </el-form-item>
-              <el-form-item id="emphasizeText">
-                Select and Compare Routes or Trips
-              </el-form-item>
-              <el-form-item label="Select Routes:">
-                count: {{ realTimeRouteOptions.length }}
-              </el-form-item
-              >
-              <el-select
-                v-model="selectedRouteList"
-                multiple
-                filterable
-                placeholder="Please select"
-                multiple-limit="5"
-              >
-                <el-option
-                  v-for="item in realTimeRouteOptions"
-                  :key="item.id"
-                  :label="item.id"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-              <el-button @click="submitRoutes" class="submitButton"
-              >Submit
-              </el-button
-              >
-              <el-form-item label="Select Trips:">
-                count: {{ realTimeTripOptions.length }}
-              </el-form-item>
-              <el-select
-                filterable
-                v-model="realTimeRouteId"
-                placeholder="Select RouteId"
-                @change="getRealTimeTripOptions"
-              >
-                <el-option
-                  v-for="item in realTimeRouteOptions"
-                  :key="item.id"
-                  :label="item.id"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-              <el-select
-                v-model="selectedTripList"
-                multiple
-                filterable
-                placeholder="Please select"
-                multiple-limit="5"
-              >
-                <el-option
-                  v-for="item in realTimeTripOptions"
-                  :key="item"
-                  :label="item.id"
-                  :value="item"
-                >
-                </el-option>
-              </el-select>
-              <el-button @click="submitTrips" class="submitButton"
-              >Submit
-              </el-button
-              >
-            </el-form>
-          </el-tab-pane>
-          <el-tab-pane label="Static Analysis" name="second">
-            <el-form
-              label-width="30px"
-              :label-position="labelPosition"
-              id="form"
-            >
-              <el-form-item label="Time">
-                <el-date-picker
-                  v-model="timeSpan"
-                  type="daterange"
-                  start-placeholder="Start"
-                  end-placeholder="End"
-                  :default-time="['00:00:01', '23:59:59']"
-                ></el-date-picker>
-                <el-button class="btn" @click="clearTimeSpan">clear</el-button>
-                <el-button class="btn" @click="setTimeSpan">
-                  SetTimeSpan
-                </el-button>
-              </el-form-item>
-              <el-form-item>
-                <el-button class="btn" @click="show_transit_network"
-                >Show Transit Network
-                </el-button>
-                <el-button class="btn" @click="show_road_speed"
-                >Show Road Speed
-                </el-button>
-              </el-form-item>
-              <el-form-item label="RouteId">
-                <el-select
-                  filterable
-                  v-model="curRouteId"
-                  placeholder="Select RouteId"
-                  @change="listTrips"
-                >
-                  <el-option
-                    v-for="item in routeIdOptions"
-                    :key="item.routeId"
-                    :label="item.routeId"
-                    :value="item.routeId"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="TripId">
-                <el-select
-                  filterable
-                  v-model="curTripId"
-                  placeholder="Select TripId">
-                  <el-option
-                    v-for="item in tripIdOptions"
-                    :key="item.tripId"
-                    :label="item.tripId"
-                    :value="item.tripId"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item>
-                <el-button @click="showOneTrajectory">Select</el-button>
-              </el-form-item>
-              <el-form-item id="lastItem">
-                <el-table
-                  :data="stopList"
-                  height="350"
-                  @row-click="clickStopRow"
-                >
-                  <el-table-column prop="stopName" label="stopName">
-                  </el-table-column>
-                  <el-table-column prop="arrivalTime" label="arrivalTime">
-                  </el-table-column>
-                </el-table>
-              </el-form-item>
-            </el-form>
-          </el-tab-pane>
-          <el-tab-pane label="Trajectory Search" name="trajectory-search">
-            <TrajectorySearchTab :polyLines="drawerData.line_polygons" :labels="drawerData.line_label"
-                                 @handleQuery="handleQuery" />
-          </el-tab-pane>
-        </el-tabs>
-      </el-aside>
-      <el-container>
-        <el-container height="100%">
-          <el-tag v-model:visible="routeTipVisible"
-                  v-bind:style="{top: mouseY + 'px', left: mouseX + 'px', position: 'absolute', zIndex: 9999, display: routeTipVisible?'block':'none'}">
-            Route:{{ selectRouteId }}
-          </el-tag>
-          <el-main>
-            <el-button class="toggleButton" @click="toggleCollapseLeft">
-              <el-icon>
-                <ArrowRight v-if="isCollapseLeft" />
-                <ArrowLeft v-else />
-              </el-icon>
-            </el-button>
-            <div id="map_container" @mousemove="mouseMove">
-              <div id="legendVehicle" ref="mapLegendVehicle"></div>
-              <div id="legendRoadSpeed" ref="mapLegendRoadSpeed"></div>
-              <el-button id="clearDrawButton" @click="clearAllDraw" type="info">Clear Draw</el-button>
-              <div id="baiduMap"></div>
-              <div id="detailWindow" ref="detailWindow">
-                <div id="infoWindow">
-                  <el-button id="closeButton" @click="hiddenDetailWindow" :icon="Close" circle />
-                  <BusSpeed_Chart
-                    v-bind:cur-vehicle="curVehicle"
-                    ref="speedChart"
-                  ></BusSpeed_Chart>
-                </div>
-                <div id="detailTail"></div>
-              </div>
+    <el-container height="100%">
+      <el-tag v-model:visible="routeTipVisible"
+              v-bind:style="{top: mouseY + 'px', left: mouseX + 'px', position: 'absolute', zIndex: 9999, display: routeTipVisible?'block':'none'}">
+        Route:{{ selectRouteId }}
+      </el-tag>
+      <el-main>
+        <div id="map_container" @mousemove="mouseMove">
+          <div id="legendVehicle" ref="mapLegendVehicle"></div>
+          <div id="legendRoadSpeed" ref="mapLegendRoadSpeed"></div>
+          <div id="baiduMap"></div>
+          <div id="detailWindow" ref="detailWindow">
+            <div id="infoWindow">
+              <el-button id="closeButton" @click="hiddenDetailWindow" :icon="Close" circle />
+              <BusSpeed_Chart
+                v-bind:cur-vehicle="curVehicle"
+                ref="speedChart"
+              ></BusSpeed_Chart>
             </div>
-            <el-button id="toggleRight" class="toggleButton" @click="toggleCollapseRight">
-              <el-icon>
-                <ArrowLeft v-if="isCollapseRight" />
-                <ArrowRight v-else />
-              </el-icon>
-            </el-button>
-          </el-main>
-          <el-aside :width="isCollapseRight ? '0px' : '350px'"
-                    style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideRight">
-            <BusTime_Chart
-              v-bind:real-time-date="realTimeDate"
-              ref="arrivalTimeChart"
-            ></BusTime_Chart>
-          </el-aside>
-        </el-container>
-        <el-footer height="260px">
-          <el-container>
-            <div style="width: 100%; height: 260px; overflow:scroll">
-              <BusRoute_Chart ref="routeChart"></BusRoute_Chart>
-              <BusTrip_Chart ref="tripChart"></BusTrip_Chart>
-            </div>
-          </el-container>
-        </el-footer>
-      </el-container>
+            <div id="detailTail"></div>
+          </div>
+        </div>
+      </el-main>
     </el-container>
   </div>
 </template>
@@ -401,7 +208,7 @@ export default {
         enableMapClick: false
       })
       _this.map.setMapStyle({ style: 'light' })
-      _this.map.centerAndZoom(new BMap.Point(-73.88601, 40.880624), 13) //set map center and zoom
+      _this.map.centerAndZoom(new BMap.Point(-73.95601, 40.712776), 13) //set map center and zoom
       _this.map.enableScrollWheelZoom(true);
 
       ['dragging', 'dragstart', 'dragend', 'zoomstart', 'zoomend'].forEach(
@@ -579,7 +386,7 @@ export default {
       //drawer setting
       const drawer = new BMapLib.DrawingManager(_this.map, {
         isOpen: false, // disable drawing mode
-        enableDrawingTool: true, // displayOnInit tool bar
+        enableDrawingTool: false, // displayOnInit tool bar
         drawingToolOptions: {
           anchor: BMAP_ANCHOR_TOP_LEFT, // position of the tool bar
           offset: new BMap.Size(5, 5), // offset from the position
