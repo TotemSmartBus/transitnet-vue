@@ -1,6 +1,6 @@
 <template>
   <div id="root">
-<!--    <Notice />-->
+    <!--    <Notice />-->
     <el-container>
       <el-aside :width="isCollapseLeft ? '0px' : '350px'"
                 style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
@@ -26,17 +26,17 @@
               </el-form-item
               >
               <el-select
-                v-model="selectedRouteList"
-                multiple
-                filterable
-                placeholder="Please select"
-                multiple-limit="5"
+                  v-model="selectedRouteList"
+                  multiple
+                  filterable
+                  placeholder="Please select"
+                  multiple-limit="5"
               >
                 <el-option
-                  v-for="item in realTimeRouteOptions"
-                  :key="item.id"
-                  :label="item.id"
-                  :value="item.id"
+                    v-for="item in realTimeRouteOptions"
+                    :key="item.id"
+                    :label="item.id"
+                    :value="item.id"
                 >
                 </el-option>
               </el-select>
@@ -48,31 +48,31 @@
                 count: {{ realTimeTripOptions.length }}
               </el-form-item>
               <el-select
-                filterable
-                v-model="realTimeRouteId"
-                placeholder="Select RouteId"
-                @change="getRealTimeTripOptions"
+                  filterable
+                  v-model="realTimeRouteId"
+                  placeholder="Select RouteId"
+                  @change="getRealTimeTripOptions"
               >
                 <el-option
-                  v-for="item in realTimeRouteOptions"
-                  :key="item.id"
-                  :label="item.id"
-                  :value="item.id"
+                    v-for="item in realTimeRouteOptions"
+                    :key="item.id"
+                    :label="item.id"
+                    :value="item.id"
                 >
                 </el-option>
               </el-select>
               <el-select
-                v-model="selectedTripList"
-                multiple
-                filterable
-                placeholder="Please select"
-                multiple-limit="5"
+                  v-model="selectedTripList"
+                  multiple
+                  filterable
+                  placeholder="Please select"
+                  multiple-limit="5"
               >
                 <el-option
-                  v-for="item in realTimeTripOptions"
-                  :key="item"
-                  :label="item.id"
-                  :value="item"
+                    v-for="item in realTimeTripOptions"
+                    :key="item"
+                    :label="item.id"
+                    :value="item"
                 >
                 </el-option>
               </el-select>
@@ -84,17 +84,17 @@
           </el-tab-pane>
           <el-tab-pane label="Static Analysis" name="second">
             <el-form
-              label-width="30px"
-              :label-position="labelPosition"
-              id="form"
+                label-width="30px"
+                :label-position="labelPosition"
+                id="form"
             >
               <el-form-item label="Time">
                 <el-date-picker
-                  v-model="timeSpan"
-                  type="daterange"
-                  start-placeholder="Start"
-                  end-placeholder="End"
-                  :default-time="['00:00:01', '23:59:59']"
+                    v-model="timeSpan"
+                    type="daterange"
+                    start-placeholder="Start"
+                    end-placeholder="End"
+                    :default-time="['00:00:01', '23:59:59']"
                 ></el-date-picker>
                 <el-button class="btn" @click="clearTimeSpan">clear</el-button>
                 <el-button class="btn" @click="setTimeSpan">
@@ -111,30 +111,30 @@
               </el-form-item>
               <el-form-item label="RouteId">
                 <el-select
-                  filterable
-                  v-model="curRouteId"
-                  placeholder="Select RouteId"
-                  @change="listTrips"
+                    filterable
+                    v-model="curRouteId"
+                    placeholder="Select RouteId"
+                    @change="listTrips"
                 >
                   <el-option
-                    v-for="item in routeIdOptions"
-                    :key="item.routeId"
-                    :label="item.routeId"
-                    :value="item.routeId"
+                      v-for="item in routeIdOptions"
+                      :key="item.routeId"
+                      :label="item.routeId"
+                      :value="item.routeId"
                   >
                   </el-option>
                 </el-select>
               </el-form-item>
               <el-form-item label="TripId">
                 <el-select
-                  filterable
-                  v-model="curTripId"
-                  placeholder="Select TripId">
+                    filterable
+                    v-model="curTripId"
+                    placeholder="Select TripId">
                   <el-option
-                    v-for="item in tripIdOptions"
-                    :key="item.tripId"
-                    :label="item.tripId"
-                    :value="item.tripId"
+                      v-for="item in tripIdOptions"
+                      :key="item.tripId"
+                      :label="item.tripId"
+                      :value="item.tripId"
                   >
                   </el-option>
                 </el-select>
@@ -144,9 +144,9 @@
               </el-form-item>
               <el-form-item id="lastItem">
                 <el-table
-                  :data="stopList"
-                  height="350"
-                  @row-click="clickStopRow"
+                    :data="stopList"
+                    height="350"
+                    @row-click="clickStopRow"
                 >
                   <el-table-column prop="stopName" label="stopName">
                   </el-table-column>
@@ -162,19 +162,19 @@
           </el-tab-pane>
           <el-tab-pane label="Real-time Range Query" name="real-time-range-query">
             <TrajSearchTabRangeRT :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
-                                 @handleQuery="handleQuery" />
+                                  @handleQuery="handleQuery" />
           </el-tab-pane>
           <el-tab-pane label="Historical Range Query" name="historical-range-query">
             <TrajSearchTabRangeHis :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
-                                  @handleQuery="handleQuery" />
+                                   @handleQuery="handleQuery" />
           </el-tab-pane>
           <el-tab-pane label="Real-time KNN Query" name="real-time-knn-query">
             <TrajSearchTabKnnRT :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
-                                   @handleQuery="handleQuery" />
+                                @handleQuery="handleQuery" />
           </el-tab-pane>
           <el-tab-pane label="Historical KNN Query" name="historical-knn-query">
             <TrajSearchTabKnnHis :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
-                                @handleQuery="handleQuery" />
+                                 @handleQuery="handleQuery" />
           </el-tab-pane>
         </el-tabs>
       </el-aside>
@@ -200,8 +200,8 @@
                 <div id="infoWindow">
                   <el-button id="closeButton" @click="hiddenDetailWindow" :icon="Close" circle />
                   <BusSpeed_Chart
-                    v-bind:cur-vehicle="curVehicle"
-                    ref="speedChart"
+                      v-bind:cur-vehicle="curVehicle"
+                      ref="speedChart"
                   ></BusSpeed_Chart>
                 </div>
                 <div id="detailTail"></div>
@@ -217,8 +217,8 @@
           <el-aside :width="isCollapseRight ? '0px' : '350px'"
                     style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideRight">
             <BusTime_Chart
-              v-bind:real-time-date="realTimeDate"
-              ref="arrivalTimeChart"
+                v-bind:real-time-date="realTimeDate"
+                ref="arrivalTimeChart"
             ></BusTime_Chart>
           </el-aside>
         </el-container>
@@ -268,18 +268,10 @@ import BaiduMap from '@/components/BaiduMap.vue'
 import { ElTag } from 'element-plus'
 import { polygon } from '@turf/turf'
 import Notice from '@/components/Notice.vue'
-import TrajSearchTabRangeRT from "@/components/TrajSearchTabRangeRT.vue";
-import TrajSearchTabRangeHis from "@/components/TrajSearchTabRangeHis.vue";
-import TrajSearchTabKnnRT from "@/components/TrajSearchTabKnnRT.vue";
-import TrajSearchTabKnnHis from "@/components/TrajSearchTabKnnHis.vue";
 
 export default {
   name: 'MapVisual',
   components: {
-    TrajSearchTabKnnHis,
-    TrajSearchTabKnnRT,
-    TrajSearchTabRangeHis,
-    TrajSearchTabRangeRT,
     ArrowRight,
     BaiduMap,
     ArrowLeft,
@@ -356,10 +348,12 @@ export default {
       curVehicle: {
         curVehiclePoint: undefined,
         curVehicleInfo: {
-          vehicleId: '',
-          routeId: '',
-          agencyId: '',
-          nextStop: '',
+          id: "",
+          routeID: "",
+          agencyID: "",
+          bearing: 0.0,
+          tripID: "",
+          nextStop: "",
           speed: 0.0
         },
         curVehicleSpeedList: []
@@ -427,13 +421,13 @@ export default {
       _this.map.enableScrollWheelZoom(true);
 
       ['dragging', 'dragstart', 'dragend', 'zoomstart', 'zoomend'].forEach(
-        function(item) {
-          _this.map.addEventListener(item, () => {
-            if (_this.$refs.detailWindow.style.display === 'block') {
-              _this.setDetailWindowPosition()
-            }
-          })
-        }
+          function(item) {
+            _this.map.addEventListener(item, () => {
+              if (_this.$refs.detailWindow.style.display === 'block') {
+                _this.setDetailWindowPosition()
+              }
+            })
+          }
       )
       const navigation = new BMap.NavigationControl({
         //init the navigation
@@ -552,15 +546,14 @@ export default {
        * @dataType List<String>
        */
       this.$axios
-        .get('/api/realtime/latest')
-        .then((response) => {
-          if (response && response.status === 200) {
-            _this.realTimeRouteOptions = response.data
-          } else {
-            _this.dealResponse(response)
-          }
-        }).catch((error) => {
-        debugger
+          .get('/api/realtime/latest')
+          .then((response) => {
+            if (response && response.status === 200) {
+              _this.realTimeRouteOptions = response.data
+            } else {
+              _this.dealResponse(response)
+            }
+          }).catch((error) => {
         _this.dealError(error)
       })
     },
@@ -582,20 +575,20 @@ export default {
        * @dataType List<String>
        */
       this.$axios
-        .get(
-          '/api/realTime/tripOptions/?routeId=' +
-          routeId +
-          '&date=' +
-          _this.realTimeDate
-        )
-        .then((response) => {
-          if (response && response.status === 200) {
-            _this.realTimeTripOptions = response.data
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+          .get(
+              '/api/realTime/tripOptions/?routeId=' +
+              routeId +
+              '&date=' +
+              _this.realTimeDate
+          )
+          .then((response) => {
+            if (response && response.status === 200) {
+              _this.realTimeTripOptions = response.data
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
     },
     addDrawer() {
       let _this = this
@@ -626,8 +619,8 @@ export default {
           position: point
         }
         let label = new BMap.Label(
-          'path: ' + _this.drawerData.line_polygons.length,
-          opts
+            'path: ' + _this.drawerData.line_polygons.length,
+            opts
         )
         label.setStyle({
           color: 'red',
@@ -643,15 +636,15 @@ export default {
       //after rect draw complete
       let rectComplete = function(rect) {
         let point = new BMap.Point(
-          (rect.getPath()[0].lng + rect.getPath()[2].lng) / 2,
-          (rect.getPath()[0].lat + rect.getPath()[2].lat) / 2
+            (rect.getPath()[0].lng + rect.getPath()[2].lng) / 2,
+            (rect.getPath()[0].lat + rect.getPath()[2].lat) / 2
         )
         let opts = {
           position: point
         }
         let label = new BMap.Label(
-          'window: ' + _this.drawerData.rect_polygons.length,
-          opts
+            'window: ' + _this.drawerData.rect_polygons.length,
+            opts
         )
         label.setStyle({
           color: 'red',
@@ -668,19 +661,18 @@ export default {
       let markerComplete = function(marker) {
         let point = turf.point([marker.point.lng, marker.point.lat])
         let bp = new BMap.Point(marker.point.lng, marker.point.lat)
-        console.log(`lat=${marker.point.lat}&lon=${marker.point.lng}`)
         let opts = {
           position: bp
         }
         let label = new BMap.Label(
-          'marker' +
-          _this.drawerData.marker_polygons.length +
-          ': (' +
-          marker.point.lng +
-          ',' +
-          marker.point.lat +
-          ')',
-          opts
+            'marker' +
+            _this.drawerData.marker_polygons.length +
+            ': (' +
+            marker.point.lng +
+            ',' +
+            marker.point.lat +
+            ')',
+            opts
         )
         label.setStyle({
           color: 'black',
@@ -752,19 +744,19 @@ export default {
           let tempIdx = distList[i][2]
           if (_this.nearestVehicleData.vehicleIds.indexOf(tempId) === -1) {
             _this.nearestVehicleData.vehicleIds.push(
-              _this.visualVehicles.vehicleIds[tempIdx]
+                _this.visualVehicles.vehicleIds[tempIdx]
             )
             _this.nearestVehicleData.bearings.push(
-              _this.visualVehicles.bearings[tempIdx]
+                _this.visualVehicles.bearings[tempIdx]
             )
             _this.nearestVehicleData.vehicleInfos.push(
-              _this.visualVehicles.vehicleInfos[tempIdx]
+                _this.visualVehicles.vehicleInfos[tempIdx]
             )
             _this.nearestVehicleData.speeds.push(
-              _this.visualVehicles.speeds[tempIdx]
+                _this.visualVehicles.speeds[tempIdx]
             )
             _this.nearestVehicleData.points.push(
-              _this.visualVehicles.points[tempIdx]
+                _this.visualVehicles.points[tempIdx]
             )
           }
         }
@@ -792,10 +784,10 @@ export default {
         if (_this.nearestTrajData.idList.indexOf(tempIdx) === -1) {
           _this.nearestTrajData.idList.push(tempIdx)
           _this.nearestTrajData.trajectories.push(
-            _this.trajData.trajectories[tempIdx]
+              _this.trajData.trajectories[tempIdx]
           )
           _this.nearestTrajData.totalPoints.push(
-            _this.trajData.totalPoints[tempIdx]
+              _this.trajData.totalPoints[tempIdx]
           )
           _this.nearestTrajData.weights.push(_this.trajData.weights[tempIdx])
         }
@@ -821,46 +813,46 @@ export default {
        * @dataType List<RouteShapeSpeedVo>
        */
       await this.$axios
-        .get('/api/routes/speed')
-        .then((response) => {
-          if (response && response.status === 200) {
-            allShapeList = response.data
-            //Foreach shape
-            allShapeList.forEach((shape) => {
-              let pointsList = []
-              let speedList = []
-              let splitTraj = shape.trajJsonModels
-              var coordinatesList = []
-              let speedIdx = 0
-              splitTraj.forEach((traj) => {
-                let tempList = traj.geometry.coordinates
-                coordinatesList = coordinatesList.concat(tempList)
-                for (let i = 0; i < tempList.length; i++) {
-                  let bp = new BMap.Point(tempList[i][0], tempList[i][1])
-                  speedList.push(shape.speeds[speedIdx])
-                  pointsList.push(bp)
+          .get('/api/routes/speed')
+          .then((response) => {
+            if (response && response.status === 200) {
+              allShapeList = response.data
+              //Foreach shape
+              allShapeList.forEach((shape) => {
+                let pointsList = []
+                let speedList = []
+                let splitTraj = shape.trajJsonModels
+                var coordinatesList = []
+                let speedIdx = 0
+                splitTraj.forEach((traj) => {
+                  let tempList = traj.geometry.coordinates
+                  coordinatesList = coordinatesList.concat(tempList)
+                  for (let i = 0; i < tempList.length; i++) {
+                    let bp = new BMap.Point(tempList[i][0], tempList[i][1])
+                    speedList.push(shape.speeds[speedIdx])
+                    pointsList.push(bp)
+                  }
+                })
+                var trajSum = {
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: coordinatesList
+                  }
                 }
+                _this.turfLineStrings.push(turf.lineString(coordinatesList))
+                _this.trajData.trajectories.push(trajSum)
+                let entity = {
+                  speed: speedList[0], // 只需要一个速度即可
+                  points: pointsList
+                }
+                _this.routeTraj.set(shape.routeId, entity)
+                _this.visibleRoute.set(shape.routeId, entity)
               })
-              var trajSum = {
-                geometry: {
-                  type: 'LineString',
-                  coordinates: coordinatesList
-                }
-              }
-              _this.turfLineStrings.push(turf.lineString(coordinatesList))
-              _this.trajData.trajectories.push(trajSum)
-              let entity = {
-                speed: speedList[0], // 只需要一个速度即可
-                points: pointsList
-              }
-              _this.routeTraj.set(shape.routeId, entity)
-              _this.visibleRoute.set(shape.routeId, entity)
-            })
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
       // _this.mapLayers.canvasLayerBack = new CanvasLayer({
       //   map: _this.map,
       //   update: _this.updateCanvasBack,
@@ -895,25 +887,25 @@ export default {
        * @dataType List<RoutesVo>
        */
       await this.$axios
-        .get('/api/mapv/transitnetwork')
-        .then((response) => {
-          if (response && response.status === 200) {
-            routes = response.data
-            //Foreach route
-            routes.forEach((route) => {
-              _this.trajData.trajectories.push(route.trajJsonModel)
-            })
-            let dataSet = new mapv.DataSet(_this.trajData.trajectories)
-            _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
-              _this.map,
-              dataSet,
-              mapVOptions.mapv_bus_line_light_green
-            )
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+          .get('/api/mapv/transitnetwork')
+          .then((response) => {
+            if (response && response.status === 200) {
+              routes = response.data
+              //Foreach route
+              routes.forEach((route) => {
+                _this.trajData.trajectories.push(route.trajJsonModel)
+              })
+              let dataSet = new mapv.DataSet(_this.trajData.trajectories)
+              _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
+                  _this.map,
+                  dataSet,
+                  mapVOptions.mapv_bus_line_light_green
+              )
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
 
       // _this.mapLayers.canvasLayerLine = new CanvasLayer({
       //   map: _this.map,
@@ -942,33 +934,33 @@ export default {
        * @dataType List<RoutesVo>
        */
       this.$axios
-        .get(
-          '/api/mapv/timespan/?startDate=' +
-          _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
-          '&endDate=' +
-          _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-')
-        )
-        .then((response) => {
-          if (response && response.status === 200) {
-            routes = response.data
-            //push each Route to trajetories
-            routes.forEach((route) => {
-              _this.trajData.trajectories.push(route.trajJsonModel)
-            })
-            //check the routes
-            if (routes.length === 0) {
-              this.$message({
-                message: 'The bus service list in this timeSpan is empty',
-                type: 'warning'
+          .get(
+              '/api/mapv/timespan/?startDate=' +
+              _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
+              '&endDate=' +
+              _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-')
+          )
+          .then((response) => {
+            if (response && response.status === 200) {
+              routes = response.data
+              //push each Route to trajetories
+              routes.forEach((route) => {
+                _this.trajData.trajectories.push(route.trajJsonModel)
               })
-              return
-            }
-            _this.displayMapvLineLayer()
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+              //check the routes
+              if (routes.length === 0) {
+                this.$message({
+                  message: 'The bus service list in this timeSpan is empty',
+                  type: 'warning'
+                })
+                return
+              }
+              _this.displayMapvLineLayer()
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
     },
     /**
      * @description list all RoutesId Option for
@@ -980,21 +972,21 @@ export default {
        * @dataType List<RoutesEntity>
        */
       this.$axios
-        .get('/api/routes')
-        .then((response) => {
-          if (response && response.status === 200) {
-            _this.routeIdOptions = response.data
-            if (_this.routeIdOptions.length === 0) {
-              _this.$message({
-                message: 'The bus route list is empty',
-                type: 'warning'
-              })
-            }
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+          .get('/api/routes')
+          .then((response) => {
+            if (response && response.status === 200) {
+              _this.routeIdOptions = response.data
+              if (_this.routeIdOptions.length === 0) {
+                _this.$message({
+                  message: 'The bus route list is empty',
+                  type: 'warning'
+                })
+              }
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
     },
     /**
      *@description list RoutesId option by timespan
@@ -1006,26 +998,26 @@ export default {
        * @dataType List<RoutesEntity>
        */
       this.$axios
-        .get(
-          '/api/routes/timespan?startDate=' +
-          _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
-          '&endDate=' +
-          _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-')
-        )
-        .then((response) => {
-          if (response && response.status === 200) {
-            _this.routeIdOptions = response.data
-            if (_this.routeIdOptions.length === 0) {
-              _this.$message({
-                message: 'The bus route list for this timeSpan is empty',
-                type: 'warning'
-              })
-            }
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+          .get(
+              '/api/routes/timespan?startDate=' +
+              _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
+              '&endDate=' +
+              _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-')
+          )
+          .then((response) => {
+            if (response && response.status === 200) {
+              _this.routeIdOptions = response.data
+              if (_this.routeIdOptions.length === 0) {
+                _this.$message({
+                  message: 'The bus route list for this timeSpan is empty',
+                  type: 'warning'
+                })
+              }
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
     },
     /**
      * @description list trips options
@@ -1055,21 +1047,21 @@ export default {
        * @dataType List<TripsEntity>
        */
       this.$axios
-        .get('/api/trips?routeId=' + _this.curRouteId)
-        .then((response) => {
-          if (response && response.status === 200) {
-            _this.tripIdOptions = response.data
-            if (_this.tripIdOptions.length === 0) {
-              _this.$message({
-                message: 'The bus trip list for this route is empty',
-                type: 'warning'
-              })
-            }
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+          .get('/api/trips?routeId=' + _this.curRouteId)
+          .then((response) => {
+            if (response && response.status === 200) {
+              _this.tripIdOptions = response.data
+              if (_this.tripIdOptions.length === 0) {
+                _this.$message({
+                  message: 'The bus trip list for this route is empty',
+                  type: 'warning'
+                })
+              }
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
     },
     /**
      * @description list trips options by routeid and timespan
@@ -1081,29 +1073,29 @@ export default {
        * @datatype List<TripsEntity>
        */
       this.$axios
-        .get(
-          '/api/trips/timespan?routeId=' +
-          _this.curRouteId +
-          '&startDate=' +
-          _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
-          '&endDate=' +
-          _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-')
-        )
-        .then((response) => {
-          if (response && response.status === 200) {
-            _this.tripIdOptions = response.data
-            if (_this.tripIdOptions.length === 0) {
-              _this.$message({
-                message:
-                  'The bus trip list for this route and timespan is empty',
-                type: 'warning'
-              })
-            }
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+          .get(
+              '/api/trips/timespan?routeId=' +
+              _this.curRouteId +
+              '&startDate=' +
+              _this.timeSpan[0].toLocaleDateString().replaceAll('/', '-') +
+              '&endDate=' +
+              _this.timeSpan[1].toLocaleDateString().replaceAll('/', '-')
+          )
+          .then((response) => {
+            if (response && response.status === 200) {
+              _this.tripIdOptions = response.data
+              if (_this.tripIdOptions.length === 0) {
+                _this.$message({
+                  message:
+                      'The bus trip list for this route and timespan is empty',
+                  type: 'warning'
+                })
+              }
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
     },
     /**
      * @description get one trajectory by routeId and tripId
@@ -1133,68 +1125,68 @@ export default {
        * @dataType RoutesVo
        */
       this.$axios
-        .get(
-          '/api/mapv/?routeId=' + _this.curRouteId + '&tripId=' + _this.curTripId
-        )
-        .then((response) => {
-          if (response && response.status === 200) {
-            _this.trajData.trajectories.push(response.data.trajJsonModel)
-            //warning message
-            if (
-              _this.trajData.trajectories[0].geometry.coordinates.length === 0
-            ) {
+          .get(
+              '/api/mapv/?routeId=' + _this.curRouteId + '&tripId=' + _this.curTripId
+          )
+          .then((response) => {
+            if (response && response.status === 200) {
+              _this.trajData.trajectories.push(response.data.trajJsonModel)
+              //warning message
+              if (
+                  _this.trajData.trajectories[0].geometry.coordinates.length === 0
+              ) {
+                this.$message({
+                  message: 'Please Check Matched RouteId and TripId are selected',
+                  type: 'error'
+                })
+                return
+              }
               this.$message({
-                message: 'Please Check Matched RouteId and TripId are selected',
-                type: 'error'
+                message: 'The selected trajectory is loading, please wait',
+                type: 'success'
               })
-              return
-            }
-            this.$message({
-              message: 'The selected trajectory is loading, please wait',
-              type: 'success'
-            })
-            let dataSet = new mapv.DataSet(_this.trajData.trajectories)
-            let curGeometry = _this.trajData.trajectories[0].geometry
-            let centerPoint = new BMap.Point(
-              curGeometry.coordinates[0][0],
-              curGeometry.coordinates[0][1]
-            )
-            _this.map.centerAndZoom(centerPoint, 14)
-            _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
-              _this.map,
-              dataSet,
-              mapVOptions.mapv_bus_line_light_green
-            )
-            let pointsList = []
-            for (let i = 0; i < curGeometry.coordinates.length; i++) {
-              let bp = new BMap.Point(
-                curGeometry.coordinates[i][0],
-                curGeometry.coordinates[i][1]
+              let dataSet = new mapv.DataSet(_this.trajData.trajectories)
+              let curGeometry = _this.trajData.trajectories[0].geometry
+              let centerPoint = new BMap.Point(
+                  curGeometry.coordinates[0][0],
+                  curGeometry.coordinates[0][1]
               )
-              pointsList.push(bp)
-            }
-            _this.trajData.totalPoints.push(pointsList)
-            //init CanvasLayers
-            // _this.mapLayers.canvasLayerBack = new CanvasLayer({
-            //   map: _this.map,
-            //   update: _this.updateCanvasBack,
-            //   zIndex: CANVAS_ZINDEX_LINE-1,
-            // });
-            // _this.mapLayers.canvasLayerLine = new CanvasLayer({
-            //   map: _this.map,
-            //   update: _this.updateCanvasLine_roadSpeed
-            //   zIndex: CANVAS_ZINDEX_LINE
-            // });
-            _this.mapLayers.canvasLayerPointer = new CanvasLayer({
-              map: _this.map,
-              update: _this.updateCanvasPointer,
-              zIndex: CANVAS_ZINDEX_LINE + 1
-            })
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+              _this.map.centerAndZoom(centerPoint, 14)
+              _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
+                  _this.map,
+                  dataSet,
+                  mapVOptions.mapv_bus_line_light_green
+              )
+              let pointsList = []
+              for (let i = 0; i < curGeometry.coordinates.length; i++) {
+                let bp = new BMap.Point(
+                    curGeometry.coordinates[i][0],
+                    curGeometry.coordinates[i][1]
+                )
+                pointsList.push(bp)
+              }
+              _this.trajData.totalPoints.push(pointsList)
+              //init CanvasLayers
+              // _this.mapLayers.canvasLayerBack = new CanvasLayer({
+              //   map: _this.map,
+              //   update: _this.updateCanvasBack,
+              //   zIndex: CANVAS_ZINDEX_LINE-1,
+              // });
+              // _this.mapLayers.canvasLayerLine = new CanvasLayer({
+              //   map: _this.map,
+              //   update: _this.updateCanvasLine_roadSpeed
+              //   zIndex: CANVAS_ZINDEX_LINE
+              // });
+              _this.mapLayers.canvasLayerPointer = new CanvasLayer({
+                map: _this.map,
+                update: _this.updateCanvasPointer,
+                zIndex: CANVAS_ZINDEX_LINE + 1
+              })
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
       _this.displayStopData.stopIdList = []
       _this.displayStopData.stopNameList = []
       _this.displayStopData.stopTimeList = []
@@ -1204,76 +1196,76 @@ export default {
        * @dataType List<StopsVo>
        */
       this.$axios
-        .get('/api/stops/?tripId=' + _this.curTripId)
-        .then((response) => {
-          if (response && response.status === 200) {
-            let tempStopData = (_this.stopList = response.data)
-            //process stop data to geometry
-            for (let i = 0; i < tempStopData.length; i++) {
-              _this.trajData.stopData.push({
-                geometry: tempStopData[i].pointJsonModel.geometry,
-                id: tempStopData[i].stopId,
-                name: tempStopData[i].stopName,
-                time: tempStopData[i].arrivalTime
-              })
-            }
-            let dataSet = new mapv.DataSet(_this.trajData.stopData)
-            let option = mapVOptions.mapv_option_stop
-            _this.mapLayers.canvasLayerStopText = new CanvasLayer({
-              map: _this.map,
-              update: _this.updateCanvasStop,
-              zIndex: 5
-            })
-            let stopMouseMove = function(item) {
-              let layer = _this.mapLayers.canvasLayerStopText
-              if (!layer.zr) {
-                layer.zr = zrender.init(layer.canvas)
-                layer.zr.resize()
-              }
-              if (
-                item !== null &&
-                _this.displayStopData.stopIdList.indexOf(item.id) === -1
-              ) {
-                _this.displayStopData.stopIdList.push(item.id)
-                _this.displayStopData.stopNameList.push(item.name)
-                _this.displayStopData.stopTimeList.push(item.time)
-                let point = new BMap.Point(
-                  item.geometry.coordinates[0],
-                  item.geometry.coordinates[1]
-                )
-                _this.displayStopData.stopPointList.push(point)
-                let pixel = _this.map.pointToPixel(point)
-                let text = new zrender.Text({
-                  style: {
-                    textFill: 'rgb(0,0,0)',
-                    text: item.name + ' ' + item.time,
-                    fontSize: 14
-                  },
-                  position: [pixel.x + 10, pixel.y + 10]
+          .get('/api/stops/?tripId=' + _this.curTripId)
+          .then((response) => {
+            if (response && response.status === 200) {
+              let tempStopData = (_this.stopList = response.data)
+              //process stop data to geometry
+              for (let i = 0; i < tempStopData.length; i++) {
+                _this.trajData.stopData.push({
+                  geometry: tempStopData[i].pointJsonModel.geometry,
+                  id: tempStopData[i].stopId,
+                  name: tempStopData[i].stopName,
+                  time: tempStopData[i].arrivalTime
                 })
-                layer.zr.add(text)
-                setTimeout(() => {
-                  let tempIdx = _this.displayStopData.stopIdList.indexOf(
-                    item.id
-                  )
-                  _this.displayStopData.stopIdList.splice(tempIdx, 1)
-                  _this.displayStopData.stopNameList.splice(tempIdx, 1)
-                  _this.displayStopData.stopPointList.splice(tempIdx, 1)
-                  _this.displayStopData.stopTimeList.splice(tempIdx, 1)
-                }, 5000)
               }
-            }
-            option.methods.mousemove = stopMouseMove
-            _this.mapLayers.stopLayer = new mapv.baiduMapLayer(
-              _this.map,
-              dataSet,
-              option
-            )
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+              let dataSet = new mapv.DataSet(_this.trajData.stopData)
+              let option = mapVOptions.mapv_option_stop
+              _this.mapLayers.canvasLayerStopText = new CanvasLayer({
+                map: _this.map,
+                update: _this.updateCanvasStop,
+                zIndex: 5
+              })
+              let stopMouseMove = function(item) {
+                let layer = _this.mapLayers.canvasLayerStopText
+                if (!layer.zr) {
+                  layer.zr = zrender.init(layer.canvas)
+                  layer.zr.resize()
+                }
+                if (
+                    item !== null &&
+                    _this.displayStopData.stopIdList.indexOf(item.id) === -1
+                ) {
+                  _this.displayStopData.stopIdList.push(item.id)
+                  _this.displayStopData.stopNameList.push(item.name)
+                  _this.displayStopData.stopTimeList.push(item.time)
+                  let point = new BMap.Point(
+                      item.geometry.coordinates[0],
+                      item.geometry.coordinates[1]
+                  )
+                  _this.displayStopData.stopPointList.push(point)
+                  let pixel = _this.map.pointToPixel(point)
+                  let text = new zrender.Text({
+                    style: {
+                      textFill: 'rgb(0,0,0)',
+                      text: item.name + ' ' + item.time,
+                      fontSize: 14
+                    },
+                    position: [pixel.x + 10, pixel.y + 10]
+                  })
+                  layer.zr.add(text)
+                  setTimeout(() => {
+                    let tempIdx = _this.displayStopData.stopIdList.indexOf(
+                        item.id
+                    )
+                    _this.displayStopData.stopIdList.splice(tempIdx, 1)
+                    _this.displayStopData.stopNameList.splice(tempIdx, 1)
+                    _this.displayStopData.stopPointList.splice(tempIdx, 1)
+                    _this.displayStopData.stopTimeList.splice(tempIdx, 1)
+                  }, 5000)
+                }
+              }
+              option.methods.mousemove = stopMouseMove
+              _this.mapLayers.stopLayer = new mapv.baiduMapLayer(
+                  _this.map,
+                  dataSet,
+                  option
+              )
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
     },
     /**
      * @description display the stop text label
@@ -1296,9 +1288,9 @@ export default {
           style: {
             textFill: 'rgb(0,0,0)',
             text:
-              _this.displayStopData.stopNameList[i] +
-              ' ' +
-              _this.displayStopData.stopTimeList[i],
+                _this.displayStopData.stopNameList[i] +
+                ' ' +
+                _this.displayStopData.stopTimeList[i],
             fontSize: 14
           },
           position: [pixel.x + 10, pixel.y + 10]
@@ -1315,9 +1307,9 @@ export default {
       let _this = this
       let dataSet = new mapv.DataSet(_this.trajData.trajectories) //set dataSet
       _this.mapLayers.lineLayer = new mapv.baiduMapLayer(
-        _this.map,
-        dataSet,
-        mapVOptions.mapv_bus_line_light_green
+          _this.map,
+          dataSet,
+          mapVOptions.mapv_bus_line_light_green
       ) // set the layer
     },
     /**
@@ -1411,7 +1403,6 @@ export default {
               message: 'Loading the detailWindow',
               type: 'success'
             })
-            console.log(bearings[k])
             that.curVehicle.curVehiclePoint = points[k]
             that.curVehicle.curVehicleInfo = infos[k]
             await that.curVehicleChartPrepare(k)
@@ -1425,10 +1416,10 @@ export default {
         // Pointer length
         const pointerLong = 8
         const res = generateBusVehiclePointer(
-          pointerLong,
-          pixel,
-          bearings[k],
-          45
+            pointerLong,
+            pixel,
+            bearings[k],
+            45
         )
         const aPixel = res.aPixel //set arrow point
         const bPixel = res.bPixel
@@ -1473,23 +1464,23 @@ export default {
        * @dataType List<SpeedDateVo>
        */
       await _this.$axios
-        .get(
-          '/api/realTime/speed/?vehicleId=' +
-          vehicleId +
-          '&curTime=' +
-          _this.realTimeDate +
-          ' ' +
-          _this.realTimeTime
-        )
-        .then((response) => {
-          if (response && response.status === 200) {
-            //last seven days
-            _this.curVehicle.curVehicleSpeedList = response.data
-          } else _this.dealResponse(response)
-        })
-        .catch((error) => {
-          _this.dealError(error)
-        })
+          .get(
+              '/api/realTime/speed/?vehicleId=' +
+              vehicleId +
+              '&curTime=' +
+              _this.realTimeDate +
+              ' ' +
+              _this.realTimeTime
+          )
+          .then((response) => {
+            if (response && response.status === 200) {
+              //last seven days
+              _this.curVehicle.curVehicleSpeedList = response.data
+            } else _this.dealResponse(response)
+          })
+          .catch((error) => {
+            _this.dealError(error)
+          })
     },
     /**
      * @description query vehicle Data by realtime and update the display
@@ -1508,12 +1499,15 @@ export default {
               _this.visualVehicles.points.push(new BMap.Point(tempVehicle.lon, tempVehicle.lat))
               _this.visualVehicles.bearings.push(tempVehicle.bearing)
               _this.visualVehicles.vehicleInfos.push({
-                routeId: tempVehicle.routeId,
-                agencyId: tempVehicle.agencyId,
+                id: tempVehicle.id,
+                routeID: tempVehicle.routeID,
+                agencyID: tempVehicle.agencyID,
+                bearing: tempVehicle.bearing,
                 nextStop: tempVehicle.nextStop,
+                tripID: tempVehicle.tripID,
                 speed: tempSpeed,
                 recordedTime: tempVehicle.recordedTime,
-                vehicleId: tempVehicle.id
+                vehicleID: tempVehicle.id
               })
             } else {
               let curVIdx = _this.visualVehicles.vehicleIds.indexOf(tempVehicle.id)
@@ -1524,12 +1518,15 @@ export default {
               _this.visualVehicles.bearings[curVIdx] = tempVehicle.bearing
               _this.visualVehicles.speeds[curVIdx] = tempSpeed
               _this.visualVehicles.vehicleInfos[curVIdx] = {
-                routeId: tempVehicle.routeId,
-                agencyId: tempVehicle.agencyId,
+                id: tempVehicle.id,
+                routeID: tempVehicle.routeID,
+                agencyID: tempVehicle.agencyID,
+                bearing: tempVehicle.bearing,
                 nextStop: tempVehicle.nextStop,
+                tripID: tempVehicle.tripID,
                 speed: tempSpeed,
                 recordedTime: tempVehicle.recordedTime,
-                vehicleId: tempVehicle.id
+                vehicleID: tempVehicle.id
               }
               // }
             }
@@ -1673,8 +1670,8 @@ export default {
             const pixel = _this.map.pointToPixel(pointsList[i])
             const nextPixel = _this.map.pointToPixel(pointsList[i + 1])
             pixelPart +=
-              ((nextPixel.x - pixel.x) ** 2 + (nextPixel.y - pixel.y) ** 2) **
-              0.5
+                ((nextPixel.x - pixel.x) ** 2 + (nextPixel.y - pixel.y) ** 2) **
+                0.5
             if (pixelPart <= pixelPartUnit) {
               // too close continue;
             }
@@ -1682,34 +1679,34 @@ export default {
             ctx.beginPath()
             // Render arrows according to render pixel distance
             if (
-              Math.abs(nextPixel.x - pixel.x) > 10 ||
-              Math.abs(nextPixel.y - pixel.y) > 10
+                Math.abs(nextPixel.x - pixel.x) > 10 ||
+                Math.abs(nextPixel.y - pixel.y) > 10
             ) {
               // An arrow needs five points:
               //    start point, end point, center point, arrow endpoint 1, and arrow endpoint 2
               const midPixel = new self.BMap.Pixel(
-                (pixel.x + nextPixel.x) / 2,
-                (pixel.y + nextPixel.y) / 2
+                  (pixel.x + nextPixel.x) / 2,
+                  (pixel.y + nextPixel.y) / 2
               )
               // distance of start and end
               const distance =
-                ((nextPixel.x - pixel.x) ** 2 + (nextPixel.y - pixel.y) ** 2) **
-                0.5
+                  ((nextPixel.x - pixel.x) ** 2 + (nextPixel.y - pixel.y) ** 2) **
+                  0.5
               // Pointer length
               const pointerLong = 4
               const aPixel = arrowPoint(
-                pointerLong,
-                midPixel,
-                distance,
-                nextPixel,
-                pixel
+                  pointerLong,
+                  midPixel,
+                  distance,
+                  nextPixel,
+                  pixel
               ).aPixel //set arrow point
               const bPixel = arrowPoint(
-                pointerLong,
-                midPixel,
-                distance,
-                nextPixel,
-                pixel
+                  pointerLong,
+                  midPixel,
+                  distance,
+                  nextPixel,
+                  pixel
               ).bPixel
               ctx.moveTo(aPixel.x, aPixel.y)
               ctx.lineWidth = 2
@@ -1773,10 +1770,12 @@ export default {
       this.$refs.detailWindow.style.display = 'none'
       this.curVehicle.curVehiclePoint = undefined
       this.curVehicle.curVehicleInfo = {
-        vehicleId: '',
-        routeId: '',
-        agencyId: '',
-        nextStop: '',
+        id: "",
+        routeID: "",
+        agencyID: "",
+        bearing: 0.0,
+        tripID: "",
+        nextStop: "",
         speed: 0.0
       }
     },
@@ -1804,7 +1803,6 @@ export default {
           type: 'error'
         })
       } else {
-        debugger
         this.$message({
           message: 'Request sending failed',
           type: 'error'
@@ -1875,10 +1873,10 @@ export default {
         //clear the overlays
         let tempOL = overlays[i]
         if (
-          tempOL.toString() === '[object Polygon]' ||
-          tempOL.toString() === '[object Label]' ||
-          tempOL.toString() === '[object Polyline]' ||
-          tempOL.toString() === '[object Marker]'
+            tempOL.toString() === '[object Polygon]' ||
+            tempOL.toString() === '[object Label]' ||
+            tempOL.toString() === '[object Polyline]' ||
+            tempOL.toString() === '[object Marker]'
         )
           _this.map.removeOverlay(tempOL)
       }
@@ -1889,24 +1887,24 @@ export default {
     async updataVisualData() {
       let _this = this
       _this.realTimeDate = _this.realTimeDatePick
-        .toLocaleDateString()
-        .replaceAll('/', '-')
+          .toLocaleDateString()
+          .replaceAll('/', '-')
       await _this.$refs.arrivalTimeChart.updateArrivalTimeChartData(
-        _this.realTimeDate
+          _this.realTimeDate
       )
     },
     submitRoutes() {
       let _this = this
       _this.$refs.routeChart.updateRouteChart(
-        _this.selectedRouteList,
-        _this.realTimeDate
+          _this.selectedRouteList,
+          _this.realTimeDate
       )
     },
     submitTrips() {
       let _this = this
       _this.$refs.tripChart.updateTripChart(
-        _this.selectedTripList,
-        _this.realTimeDate
+          _this.selectedTripList,
+          _this.realTimeDate
       )
     },
     /**
