@@ -160,6 +160,22 @@
             <TrajectorySearchTab :polyLines="drawerData.line_polygons" :labels="drawerData.line_label"
                                  @handleQuery="handleQuery" />
           </el-tab-pane>
+          <el-tab-pane label="Real-time Range Query" name="real-time-range-query">
+            <TrajSearchTabRangeRT :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
+                                 @handleQuery="handleQuery" />
+          </el-tab-pane>
+          <el-tab-pane label="Historical Range Query" name="historical-range-query">
+            <TrajSearchTabRangeHis :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
+                                  @handleQuery="handleQuery" />
+          </el-tab-pane>
+          <el-tab-pane label="Real-time KNN Query" name="real-time-knn-query">
+            <TrajSearchTabKnnRT :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
+                                   @handleQuery="handleQuery" />
+          </el-tab-pane>
+          <el-tab-pane label="Historical KNN Query" name="historical-knn-query">
+            <TrajSearchTabKnnHis :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
+                                @handleQuery="handleQuery" />
+          </el-tab-pane>
         </el-tabs>
       </el-aside>
       <el-container>
@@ -252,10 +268,18 @@ import BaiduMap from '@/components/BaiduMap.vue'
 import { ElTag } from 'element-plus'
 import { polygon } from '@turf/turf'
 import Notice from '@/components/Notice.vue'
+import TrajSearchTabRangeRT from "@/components/TrajSearchTabRangeRT.vue";
+import TrajSearchTabRangeHis from "@/components/TrajSearchTabRangeHis.vue";
+import TrajSearchTabKnnRT from "@/components/TrajSearchTabKnnRT.vue";
+import TrajSearchTabKnnHis from "@/components/TrajSearchTabKnnHis.vue";
 
 export default {
   name: 'MapVisual',
   components: {
+    TrajSearchTabKnnHis,
+    TrajSearchTabKnnRT,
+    TrajSearchTabRangeHis,
+    TrajSearchTabRangeRT,
     ArrowRight,
     BaiduMap,
     ArrowLeft,
@@ -332,12 +356,10 @@ export default {
       curVehicle: {
         curVehiclePoint: undefined,
         curVehicleInfo: {
-          id: "",
-          routeID: "",
-          agencyID: "",
-          bearing: 0.0,
-          tripID: "",
-          nextStop: "",
+          vehicleId: '',
+          routeId: '',
+          agencyId: '',
+          nextStop: '',
           speed: 0.0
         },
         curVehicleSpeedList: []
@@ -538,6 +560,7 @@ export default {
             _this.dealResponse(response)
           }
         }).catch((error) => {
+        debugger
         _this.dealError(error)
       })
     },
@@ -645,6 +668,7 @@ export default {
       let markerComplete = function(marker) {
         let point = turf.point([marker.point.lng, marker.point.lat])
         let bp = new BMap.Point(marker.point.lng, marker.point.lat)
+        console.log(`lat=${marker.point.lat}&lon=${marker.point.lng}`)
         let opts = {
           position: bp
         }
@@ -1387,6 +1411,7 @@ export default {
               message: 'Loading the detailWindow',
               type: 'success'
             })
+            console.log(bearings[k])
             that.curVehicle.curVehiclePoint = points[k]
             that.curVehicle.curVehicleInfo = infos[k]
             await that.curVehicleChartPrepare(k)
@@ -1483,15 +1508,12 @@ export default {
               _this.visualVehicles.points.push(new BMap.Point(tempVehicle.lon, tempVehicle.lat))
               _this.visualVehicles.bearings.push(tempVehicle.bearing)
               _this.visualVehicles.vehicleInfos.push({
-                id: tempVehicle.id,
-                routeID: tempVehicle.routeID,
-                agencyID: tempVehicle.agencyID,
-                bearing: tempVehicle.bearing,
+                routeId: tempVehicle.routeId,
+                agencyId: tempVehicle.agencyId,
                 nextStop: tempVehicle.nextStop,
-                tripID: tempVehicle.tripID,
                 speed: tempSpeed,
                 recordedTime: tempVehicle.recordedTime,
-                vehicleID: tempVehicle.id
+                vehicleId: tempVehicle.id
               })
             } else {
               let curVIdx = _this.visualVehicles.vehicleIds.indexOf(tempVehicle.id)
@@ -1502,15 +1524,12 @@ export default {
               _this.visualVehicles.bearings[curVIdx] = tempVehicle.bearing
               _this.visualVehicles.speeds[curVIdx] = tempSpeed
               _this.visualVehicles.vehicleInfos[curVIdx] = {
-                id: tempVehicle.id,
-                routeID: tempVehicle.routeID,
-                agencyID: tempVehicle.agencyID,
-                bearing: tempVehicle.bearing,
+                routeId: tempVehicle.routeId,
+                agencyId: tempVehicle.agencyId,
                 nextStop: tempVehicle.nextStop,
-                tripID: tempVehicle.tripID,
                 speed: tempSpeed,
                 recordedTime: tempVehicle.recordedTime,
-                vehicleID: tempVehicle.id
+                vehicleId: tempVehicle.id
               }
               // }
             }
@@ -1754,12 +1773,10 @@ export default {
       this.$refs.detailWindow.style.display = 'none'
       this.curVehicle.curVehiclePoint = undefined
       this.curVehicle.curVehicleInfo = {
-        id: "",
-        routeID: "",
-        agencyID: "",
-        bearing: 0.0,
-        tripID: "",
-        nextStop: "",
+        vehicleId: '',
+        routeId: '',
+        agencyId: '',
+        nextStop: '',
         speed: 0.0
       }
     },
@@ -1787,6 +1804,7 @@ export default {
           type: 'error'
         })
       } else {
+        debugger
         this.$message({
           message: 'Request sending failed',
           type: 'error'
@@ -1940,6 +1958,7 @@ export default {
   }
 }
 </script>
+
 
 
 
