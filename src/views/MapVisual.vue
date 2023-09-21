@@ -1,3 +1,4 @@
+//在IDE中开启了commit前自动格式化
 <template>
   <div id="root">
     <!--    <Notice />-->
@@ -239,35 +240,32 @@
 import * as zrender from 'zrender'
 import CanvasPainter from 'zrender/lib/canvas/Painter'
 import '../assets/map.css'
-
-zrender.registerPainter('canvas', CanvasPainter)
-
 import {
-  // MP,
+  arrowPoint,
+  CANVAS_ZINDEX_LINE,
+  CANVAS_ZINDEX_VEHICLE,
+  generateBusVehiclePointer,
   getTrajColorByValue,
   getVehicleColor,
-  arrowPoint,
-  generateBusVehiclePointer,
-  getPixelRatio,
-  mapVOptions,
   LEGEND_DATA1,
   LEGEND_DATA2,
-  CANVAS_ZINDEX_VEHICLE,
-  CANVAS_ZINDEX_LINE,
+  mapVOptions,
   pathStyle,
   rectStyle
 } from '../components/utils'
-import { CanvasLayer } from '../components/CanvasLayer.js'
+import {CanvasLayer} from '../components/CanvasLayer.js'
 import BusRoute_Chart from './BusRoute_Chart.vue'
 import BusTime_Chart from './BusTime_Chart.vue'
 import BusSpeed_Chart from './BusSpeed_Chart.vue'
 import BusTrip_Chart from './BusTrip_Chart.vue'
 import * as turf from '@turf/turf'
-import { ArrowLeft, ArrowRight, Close } from '@element-plus/icons-vue'
+import {polygon} from '@turf/turf'
+import {ArrowLeft, ArrowRight, Close} from '@element-plus/icons-vue'
 import BaiduMap from '@/components/BaiduMap.vue'
-import { ElTag } from 'element-plus'
-import { polygon } from '@turf/turf'
+import {ElTag} from 'element-plus'
 import Notice from '@/components/Notice.vue'
+
+zrender.registerPainter('canvas', CanvasPainter)
 
 export default {
   name: 'MapVisual',
