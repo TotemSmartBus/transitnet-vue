@@ -6,7 +6,7 @@
           <TrajSearchFormRangeHis :label="labels[rowIndex]" :points="line.getPath()" @receiveResult="receiveResult" />
         </div>
       </div>
-      <h2 v-else>Please draw a rectangle on the map to determine the range.</h2>
+      <h2 v-else>Please draw a rectangle on the map to determine the range.Now only suport 2023-05-20</h2>
       <h3>Real-time Bus-Info:</h3>
       <TrajSearchResultRangeHis :data="result.buses" />
     </div>

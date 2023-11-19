@@ -69,6 +69,9 @@ export default {
       console.log("formdata: ",formData);
       let result = searchTrajectory_Range_history(formData)
       result.then(res => {
+        res.buses.push({
+          id: 'EOF',
+        });
         that.$emit('receiveResult', res)
       }).catch(e => {
         console.error(e)

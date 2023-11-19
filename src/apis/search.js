@@ -1,9 +1,5 @@
 import ApiService from '@/service/api.service'
 
-
-export const searchTrajectory = (form) => {
-  return ApiService.post('query/trajetory', form)
-}
 export const searchTrajectory_Range_realtime = (form) => {
   return ApiService.post('query/traj_range_realtime', form)
 }

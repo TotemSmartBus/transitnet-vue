@@ -1,9 +1,11 @@
 <template>
-  <el-table :data="data">
+  <div style="overflow: auto; width: 100%;">
+    <el-table :data="data" style="width: 100%; max-height: 100%; height: 500px;">
     <el-table-column type="index" label="No." />
     <el-table-column prop="id" label="BusId" />
     <el-table-column prop="position" label="Position" />
-  </el-table>
+    </el-table>
+  </div>
 </template>
 <script>
 import { ElTable, ElTableColumn } from 'element-plus'

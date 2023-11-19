@@ -90,6 +90,10 @@ export default {
       let result = searchTrajectory_Knn_realtime(formData)
       console.log("result:" , result);
       result.then(res => {
+        res.buses.push({
+          id: 'EOF',
+          similarity: 'EOF',
+        });
         that.$emit('receiveResult', res)
       }).catch(e => {
         console.error(e)
