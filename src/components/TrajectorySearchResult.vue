@@ -1,7 +1,7 @@
 <template>
   <el-table :data="data">
     <el-table-column type="index" label="No." />
-    <el-table-column prop="id" label="BusId" />
+    <el-table-column prop="id" label="RouteId" />
     <el-table-column prop="similarity" label="Similarity" />
   </el-table>
 </template>

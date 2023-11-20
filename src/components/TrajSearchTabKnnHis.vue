@@ -4,7 +4,7 @@
       <div v-if="polyLines.length>0">
         <TrajSearchFormKnnHis  :points="polyLines" @receiveResult="receiveResult" />
       </div>
-      <h2 v-else>Please draw some points on the map to determine the path.Now only support 2023-05-20</h2>
+      <h2 v-else>Please draw some points on the map to determine the path.</h2>
       <h3>Historical KNN Bus-Info:</h3>
       <TrajSearchResultKnnHis :data="result.buses" />
     </div>
@@ -48,11 +48,8 @@ export default {
     receiveResult(data) {
       console.log("Tab data:"+data);
       this.result = data
-      console.log("Tab res:"+this.result.buses);
+      console.log("Tab res:"+this.result);
       //this.$emit('handleQuery', data)
-    },
-    clearData(){
-      this.result={}
     }
   }
 }
