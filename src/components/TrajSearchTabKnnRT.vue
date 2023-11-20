@@ -48,9 +48,6 @@ export default {
       this.result = data
       //this.$emit('handleQuery', data)
     },
-    clearData(){
-      this.result={}
-    }
   },
 
 }
