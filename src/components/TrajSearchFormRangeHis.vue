@@ -1,5 +1,6 @@
 <template>
   <el-form ref="formRef" v-model="form">
+    <h5>{{"Note: click on the \"Clear Draw\" button to clear the results."}}</h5>
     <h4>{{ label.content }}</h4>
     <el-form-item v-for="(point, index) in this.points">
       <el-input :value="point.lat" type="hidden" v-model="form[index].lat" />

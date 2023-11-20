@@ -1,5 +1,6 @@
 <template>
   <el-form>
+    <h5>{{"Note: click on the \"Clear Draw\" button to clear the results."}}</h5>
     <h4>{{"Set the timestamp of each point (e.g., 2023-05-20 08:00:00)."}}</h4>
     <el-form-item v-for="(point, index) in this.points" :key="index">
       <el-text class="mx-1">{{ points[index]['point'].lat + ',' + points[index]['point'].lng }}</el-text>

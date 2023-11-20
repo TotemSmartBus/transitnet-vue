@@ -1,5 +1,6 @@
 <template>
   <el-form>
+    <h5>{{"Note: click on the \"Clear Draw\" button to clear the results."}}</h5>
     <el-form-item v-for="(point, index) in this.points">
       <el-row :gutter="0">
         <el-col :span="24">

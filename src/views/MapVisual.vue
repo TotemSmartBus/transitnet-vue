@@ -29,7 +29,7 @@
             <div id="map_container" @mousemove="mouseMove">
               <div id="legendVehicle" ref="mapLegendVehicle"></div>
               <div id="legendRoadSpeed" ref="mapLegendRoadSpeed"></div>
-              <el-button id="clearDrawButton" @click="clearAllDraw" type="info">Clear Draw</el-button>
+              <el-button id="clearDrawButton" @click="clearAllDraw" type="danger">Clear Draw</el-button>
               <div id="baiduMap"></div>
               <div id="detailWindow" ref="detailWindow">
                 <div id="detailTail"></div>
