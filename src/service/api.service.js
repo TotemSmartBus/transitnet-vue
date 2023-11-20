@@ -9,11 +9,11 @@ const ApiService = {
   //   Vue.axios.defaults.baseURL = ''
   // },
   init() {
-    axios.defaults.baseURL = "http://localhost:8090/api"/*import.meta.env.SERVER_ADDR*/
+    axios.defaults.baseURL = "http://sheng.whu.edu.cn/bus/api"/*import.meta.env.SERVER_ADDR*/
     // console.log(axios.defaults.baseURL)
   },
   //创建不同的网络请求方法
-  get(resource, slug = '', params) {
+  get(resource, slug = '', params) {s
     return axios.get(`${resource}/${slug}`, { params }).catch(error => {
       throw error.response
     })
