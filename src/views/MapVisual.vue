@@ -268,7 +268,7 @@ export default {
         _this.drawerData.rect_label.pop()
         _this.drawerData.rect_polygons.pop()
         let label = new BMap.Label(
-            'window range: '
+            'Range: '
         )
         _this.drawerData.rect_label.push(label)
         _this.drawerData.rect_polygons.push(rect)
@@ -634,9 +634,6 @@ export default {
         )
           _this.map.removeOverlay(tempOL)
       }
-    },
-    clearAll_tabdata(){
-      this.clearAllDraw();
       const realTimeRangeTabInstance = this.$refs.realTimeRangeTab;
       if (realTimeRangeTabInstance) {
         realTimeRangeTabInstance.clearData();
@@ -653,6 +650,9 @@ export default {
       if (historyKnnTabInstance) {
         historyKnnTabInstance.clearData();
       }
+    },
+    clearAll_tabdata(){
+      this.clearAllDraw();
     },
     mouseMove(event) {
       this.mouseX = event.pageX

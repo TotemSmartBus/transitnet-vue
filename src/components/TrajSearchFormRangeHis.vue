@@ -10,8 +10,8 @@
         </el-col>
       </el-row>
     </el-form-item>
-    <h4>{{"choose a day."}}</h4>
-    <el-form-item label="Time">
+    <h4>{{"Set a date."}}</h4>
+    <el-form-item label="Date">
       <el-input v-model="timerange" placeholder="yyyy-MM-dd" type="text"></el-input>
       <el-button class="btn" @click="clearTimeRange">Clear</el-button>
           <el-button class="btn" type="primary" @click="handleQuery(this)" id="submit">

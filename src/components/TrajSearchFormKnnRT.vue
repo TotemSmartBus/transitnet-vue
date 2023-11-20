@@ -8,13 +8,14 @@
       </el-row>
     </el-form-item>
     <div>
+      <h4>{{"Please set the values of k and time window"}}</h4>
       <el-row :gutter="20">
         <el-col :span="8">
-          <label>K：</label>
+          <label>k：</label>
           <el-input v-model="k" placeholder="K" style="width: 50%"></el-input>
         </el-col>
         <el-col :span="16">
-          <label>backdate(s):</label>
+          <label>the window(s):</label>
           <el-input v-model="backdate_s" placeholder="backdate" style="width: 40%"></el-input>
         </el-col>
       </el-row>
@@ -51,8 +52,8 @@ export default {
       form: form,
       withTime: true,
       result: [],
-      k:1,
-      backdate_s:100
+      k:5,
+      backdate_s:300
     }
   },
   watch: {

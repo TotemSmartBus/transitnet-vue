@@ -1,12 +1,13 @@
 <template>
   <el-form>
-    <h5>{{"Give their timestamps."}}</h5>
+    <h4>{{"Set the timestamp of each point (e.g., 2023-05-20 08:00:00)."}}</h4>
     <el-form-item v-for="(point, index) in this.points" :key="index">
       <el-text class="mx-1">{{ points[index]['point'].lat + ',' + points[index]['point'].lng }}</el-text>
-      <el-input v-model="points[index]['point'].time" placeholder="Enter time" type="text" @input="handleInput(index, $event)"></el-input>
+      <el-input v-model="points[index]['point'].time" placeholder="yyyy-MM-dd HH:mm:ss" type="text" @input="handleInput(index, $event)"></el-input>
     </el-form-item>
 
     <el-form-item>
+      <h4>Set the value of k：</h4>
       <el-input v-model="k" placeholder="Enter k" type="text"></el-input>
       <el-button class="btn" @click="clearTimeRange">Clear</el-button>
       <el-button class="btn" type="primary" @click="handleQuery" id="submit">

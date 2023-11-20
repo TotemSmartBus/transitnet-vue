@@ -4,8 +4,8 @@
       <div v-if="polyLines.length>0" >
         <TrajSearchFormKnnRT  :points="polyLines" @receiveResult="receiveResult" />
       </div>
-      <h2 v-else>Please create a path and set 2 parameters.</h2>
-      <h3>The Top-k Real-time Bus-Info:</h3>
+      <h2 v-else>Please draw dots on the map to determine the query route.</h2>
+      <h3>Top-k Real-time Bus-Info:</h3>
       <TrajSearchResultKnnRT :data="result.buses" />
     </div>
   </div>
