@@ -4,21 +4,21 @@
     <el-container>
       <el-aside :width="isCollapseLeft ? '0px' : '350px'"
                 style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
-        <el-tabs v-model="activeName">
+        <el-tabs v-model="activeName" @tab-click="clearAll_tabdata">
           <el-tab-pane label="Real-time Range Query" name="first">
-            <TrajSearchTabRangeRT :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
+            <TrajSearchTabRangeRT ref="realTimeRangeTab" :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
                                   @handleQuery="handleQuery" />
           </el-tab-pane>
           <el-tab-pane label="Historical Range Query" name="historical-range-query">
-            <TrajSearchTabRangeHis :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
+            <TrajSearchTabRangeHis ref="historyRangeTab" :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
                                    @handleQuery="handleQuery" />
           </el-tab-pane>
           <el-tab-pane label="Real-time KNN Query" name="real-time-knn-query">
-            <TrajSearchTabKnnRT :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
+            <TrajSearchTabKnnRT ref="realTimeKnnTab" :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
                                 @handleQuery="handleQuery" />
           </el-tab-pane>
           <el-tab-pane label="Historical KNN Query" name="historical-knn-query">
-            <TrajSearchTabKnnHis :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
+            <TrajSearchTabKnnHis ref="historyKnnTab" :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
                                  @handleQuery="handleQuery" />
           </el-tab-pane>
         </el-tabs>
@@ -63,6 +63,8 @@ import BaiduMap from '@/components/BaiduMap.vue'
 import {ElTag} from 'element-plus'
 import Notice from '@/components/Notice.vue'
 
+import TrajSearchTabRangeRT from '@/components/TrajSearchTabRangeRT.vue';
+
 zrender.registerPainter('canvas', CanvasPainter)
 
 export default {
@@ -74,6 +76,7 @@ export default {
     Close,
     ElTag,
     Notice,
+    TrajSearchTabRangeRT
   },
   data() {
     return {
@@ -106,9 +109,6 @@ export default {
       curRouteId: '',
       curTripId: '',
       timer: undefined,
-      realTimeDate: '2022-01-01',
-      realTimeDatePick: '2022-01-01',
-      realTimeTime: '18:00:00',
       drawerData: {
         rect_polygons: [],
         rect_label: [],
@@ -633,6 +633,25 @@ export default {
             tempOL.toString() === '[object Marker]'
         )
           _this.map.removeOverlay(tempOL)
+      }
+    },
+    clearAll_tabdata(){
+      this.clearAllDraw();
+      const realTimeRangeTabInstance = this.$refs.realTimeRangeTab;
+      if (realTimeRangeTabInstance) {
+        realTimeRangeTabInstance.clearData();
+      }
+      const historyRangeTabInstance = this.$refs.historyRangeTab;
+      if (historyRangeTabInstance) {
+        historyRangeTabInstance.clearData();
+      }
+      const realTimeKnnTabInstance = this.$refs.realTimeKnnTab;
+      if (realTimeKnnTabInstance) {
+        realTimeKnnTabInstance.clearData();
+      }
+      const historyKnnTabInstance = this.$refs.historyKnnTab;
+      if (historyKnnTabInstance) {
+        historyKnnTabInstance.clearData();
       }
     },
     mouseMove(event) {

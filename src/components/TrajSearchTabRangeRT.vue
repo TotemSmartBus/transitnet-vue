@@ -1,17 +1,18 @@
 <template>
   <div class="container-nolim">
     <div class="content">
-      <div v-if="polyLines.length>0" v-for="(line, rowIndex) in polyLines">
-        <div v-if="rowIndex==polyLines.length-1">
+      <div v-if="polyLines.length > 0" v-for="(line, rowIndex) in polyLines">
+        <div v-if="rowIndex == polyLines.length - 1">
           <TrajSearchFormRangeRT :label="labels[rowIndex]" :points="line.getPath()" @receiveResult="receiveResult" />
         </div>
       </div>
       <h2 v-else>Please draw a rectangle on the map to determine the range.</h2>
       <h3>Real-time Bus-Info:</h3>
-      <TrajSearchResultRangeRT :data="result.buses" />
+        <TrajSearchResultRangeRT :data="result.buses" key="TrajSearchResultRangeRT" />
     </div>
   </div>
 </template>
+
 
 <style>
 .container-nolim {
@@ -48,7 +49,10 @@ export default {
   methods: {
     receiveResult(data) {
       this.result = data
-      this.$emit('handleQuery', data)
+      //this.$emit('handleQuery', data)
+    },
+    clearData(){
+      this.result={}
     }
   }
 }
