@@ -5,30 +5,42 @@
       <el-input :value="point.lat" type="hidden" v-model="form[index].lat" />
       <el-input :value="point.lng" type="hidden" v-model="form[index].lng" />
       <el-row :gutter="0">
-        <el-col :span="24">
-          <el-text class="mx-1">{{ point.lat + ',' + point.lng }}</el-text>
+        <el-col :span="11">
+          <el-text class="mx-1">{{ point.lat + ', ' + point.lng }}</el-text>
+        </el-col>
+        <el-col :span="5">
+          <el-date-picker
+            v-model="form[index].time"
+            type="datetime"
+            placeholder="Select date and time"
+            :disabled="!withTime"
+            format="YY-MM-DD HH:mm:ss"
+          />
         </el-col>
       </el-row>
     </el-form-item>
-    <h4>{{"choose a day."}}</h4>
-    <el-form-item label="Time">
-      <el-input v-model="timerange" placeholder="yyyy-MM-dd" type="text"></el-input>
-      <el-button class="btn" @click="clearTimeRange">Clear</el-button>
-          <el-button class="btn" type="primary" @click="handleQuery(this)" id="submit">
+    <el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="13">
+          <el-checkbox v-model="withTime" label="Query with Time" size="large"
+                       @change="$refs.withTime=$event.checked" />
+        </el-col>
+        <el-col :span="8">
+          <el-button type="primary" @click="handleQuery(this)" id="submit">
             <el-icon>
               <Search />
             </el-icon>
             Query
           </el-button>
-
-
+        </el-col>
+      </el-row>
     </el-form-item>
   </el-form>
 </template>
 
 <script>
 import { Delete, Search } from '@element-plus/icons-vue'
-import {searchTrajectory_Range_history} from '@/apis/search'
+import { searchTrajectory } from '@/apis/search'
 
 export default {
   components: { Delete, Search },
@@ -48,15 +60,14 @@ export default {
     return {
       form: form,
       withTime: true,
-      result: [],
-      timerange:[]
+      result: []
     }
   },
   methods: {
     handleQuery: (that) => {
       let formData = {
-        points: [],
-        timerange:[]
+        withTime: that.withTime,
+        points: []
       }
       for (let i = 0; i < that.form.length; i++) {
         formData.points.push({
@@ -65,25 +76,13 @@ export default {
           time: that.form[i].time
         })
       }
-      formData.timerange=that.timerange;
-      console.log("formdata: ",formData);
-      let result = searchTrajectory_Range_history(formData)
+      let result = searchTrajectory(formData)
       result.then(res => {
         that.$emit('receiveResult', res)
       }).catch(e => {
         console.error(e)
       })
-    },
-    clearTimeRange(){
-      this.timerange = []
-      this.clearAll()
-    },
-    handleDateChange(value) {
-      // 在这里处理日期选择器值的变化
-      console.log('New timerange:', value);
-      // 可以在这里执行其他操作，比如更新数据或发送请求
-    },
-
+    }
   }
 }
 </script>
