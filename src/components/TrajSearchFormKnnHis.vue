@@ -9,7 +9,6 @@
     <el-form-item>
       <h4>Set the value of k：</h4>
       <el-input v-model="k" placeholder="Enter k" type="text"></el-input>
-      <el-button class="btn" @click="clearTimeRange">Clear</el-button>
       <el-button class="btn" type="primary" @click="handleQuery" id="submit">
         <el-icon>
           <Search />
@@ -68,10 +67,6 @@ export default {
       }).catch(e => {
         console.error(e);
       });
-    },
-    clearTimeRange() {
-      this.timerange = [];
-      this.clearAll();
     },
   }
 }
