@@ -28,13 +28,13 @@
 
 <script>
 import TrajSearchFormKnnRT from './TrajSearchFormKnnRT.vue'
-import TrajSearchResultKnnRT from '@/components/TrajSearchResultKnnRT.vue'
+import TrajSearchResultKnnRT from './TrajSearchResultKnnRT.vue'
 
 export default {
   components: { TrajSearchResultKnnRT, TrajSearchFormKnnRT },
   props: {
     polyLines: Object,
-    labels: Object
+    labels: Object,
   },
   data() {
     let query = []
@@ -46,7 +46,7 @@ export default {
   methods: {
     receiveResult(data) {
       this.result = data
-      //this.$emit('handleQuery', data)
+      this.$emit('update:value', data.trips);
     },
     clearData(){
       this.result={}

@@ -2,30 +2,35 @@
   <div id="root">
     <!--    <Notice />-->
     <el-container>
-      <el-aside :width="isCollapseLeft ? '0px' : '350px'"
+      <el-aside :width="'350px'"
                 style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
         <el-tabs v-model="activeName" @tab-click="clearAll_tabdata">
           <el-tab-pane label="Real-time Range Query" name="first">
             <TrajSearchTabRangeRT ref="realTimeRangeTab" :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
-                                  @handleQuery="handleQuery" />
+                                  v-model="QueryTrips"
+                                  @update:value="getQueryRes" />
           </el-tab-pane>
           <el-tab-pane label="Historical Range Query" name="historical-range-query">
             <TrajSearchTabRangeHis ref="historyRangeTab" :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
-                                   @handleQuery="handleQuery" />
+                                   v-model="QueryTrips"
+                                   @update:value="getQueryRes" />
           </el-tab-pane>
           <el-tab-pane label="Real-time KNN Query" name="real-time-knn-query">
             <TrajSearchTabKnnRT ref="realTimeKnnTab" :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
-                                @handleQuery="handleQuery" />
+                                v-model="QueryTrips"
+                                @update:value="getQueryRes"/>
           </el-tab-pane>
           <el-tab-pane label="Historical KNN Query" name="historical-knn-query">
             <TrajSearchTabKnnHis ref="historyKnnTab" :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
-                                 @handleQuery="handleQuery" />
+                                 v-model="QueryTrips"
+                                 @update:value="getQueryRes" />
           </el-tab-pane>
         </el-tabs>
       </el-aside>
 
         <el-container height="100%">
           <el-main>
+            <el-button @click="toggleCanvasLayer" type="danger">Switch showing data</el-button>
             <div id="map_container" @mousemove="mouseMove">
               <div id="legendVehicle" ref="mapLegendVehicle"></div>
               <div id="legendRoadSpeed" ref="mapLegendRoadSpeed"></div>
@@ -37,7 +42,6 @@
             </div>
           </el-main>
         </el-container>
-
     </el-container>
   </div>
 </template>
@@ -62,10 +66,9 @@ import {ArrowLeft, ArrowRight, Close} from '@element-plus/icons-vue'
 import BaiduMap from '@/components/BaiduMap.vue'
 import {ElTag} from 'element-plus'
 import Notice from '@/components/Notice.vue'
-
-import TrajSearchTabRangeRT from '@/components/TrajSearchTabRangeRT.vue';
-
 zrender.registerPainter('canvas', CanvasPainter)
+
+
 
 export default {
   name: 'MapVisual',
@@ -76,10 +79,11 @@ export default {
     Close,
     ElTag,
     Notice,
-    TrajSearchTabRangeRT
   },
   data() {
     return {
+      QueryTrips: {},
+      currentCanvasLayer: 'canvasLayerBusVehicle', // 追踪当前图层
       ak: 'g5f0bc3uZ0mKzHptwS1ugqMQ',
       activeName: 'first',
       trajData: {
@@ -100,22 +104,15 @@ export default {
         speeds: []
       },
       mapLayers: {
-        lineLayer: null,
-        canvasLayerLine: null,
-        canvasLayerPointer: null,
-        canvasLayerBack: null,
-        canvasLayerBusVehicle: null
+        canvasLayerBusVehicle: null,
+        canvasLayerQueryRes:null
       },
-      curRouteId: '',
-      curTripId: '',
       timer: undefined,
       drawerData: {
         rect_polygons: [],
         rect_label: [],
         marker_polygons: [],
         marker_label: [],
-        marker_points: [],
-        overlayIdx: []
       },
       turfLineStrings: [],
       realTimeRouteOptions: [],
@@ -369,26 +366,97 @@ export default {
         if (tempOL.toString() === '[object Overlay]')
           _this.map.removeOverlay(tempOL)
       }
-      if (_this.mapLayers.lineLayer != null) {
-        _this.mapLayers.lineLayer.destroy()
-        _this.mapLayers.lineLayer = null
-      }
-      if (_this.mapLayers.stopLayer != null) {
-        _this.mapLayers.stopLayer.destroy()
-        _this.mapLayers.stopLayer = null
-      }
-      if (_this.mapLayers.canvasLayerLine != null) {
-        _this.mapLayers.canvasLayerLine = null
-      }
-      if (_this.mapLayers.canvasLayerBack != null) {
-        _this.mapLayers.canvasLayerBack = null
-      }
-      if (_this.mapLayers.canvasLayerBack != null) {
-        _this.mapLayers.canvasLayerBack = null
-      }
       if (_this.mapLayers.canvasLayerBusVehicle != null) {
         _this.mapLayers.canvasLayerBusVehicle = null
       }
+    },
+    toggleCanvasLayer() {
+      // 隐藏当前图层
+      console.log('try to hide current layer'+this.currentCanvasLayer)
+      this.hideCanvasLayer(this.currentCanvasLayer);
+
+      // 切换当前显示的图层
+      if (this.currentCanvasLayer === 'canvasLayerBusVehicle') {
+        this.currentCanvasLayer = 'canvasLayerQueryRes';
+        console.log('switch to canvasLayerQueryRes')
+      } else {
+        this.currentCanvasLayer = 'canvasLayerBusVehicle';
+        console.log('switch to canvasLayerBusVehicle')
+      }
+
+      // 显示切换后的图层
+      console.log('try to show current layer'+this.currentCanvasLayer)
+      this.showCanvasLayer(this.currentCanvasLayer);
+    },
+    hideCanvasLayer(layerName) {
+      // 隐藏指定图层的逻辑
+      if (layerName === 'canvasLayerBusVehicle') {
+        // 隐藏 canvasLayerBusVehicle 的逻辑
+        if (this.mapLayers.canvasLayerBusVehicle) {
+          this.mapLayers.canvasLayerBusVehicle.hide();
+          console.log('already hide canvasLayerBusVehicle')
+        }
+      } else if (layerName === 'canvasLayerQueryRes') {
+        // 隐藏 canvasLayerQueryRes 的逻辑
+        if (this.mapLayers.canvasLayerQueryRes) {
+          this.mapLayers.canvasLayerQueryRes.hide();
+          console.log('already hide canvasLayerQueryRes')
+        }
+      }
+    },
+    showCanvasLayer(layerName) {
+      // 显示指定图层的逻辑
+      if (layerName === 'canvasLayerBusVehicle') {
+        if (this.mapLayers.canvasLayerBusVehicle) {
+          this.map.clearOverlays();
+          this.updateCanvasBusVehicle();
+          this.displayRouteShapeAndSpeed_Canvas()
+          this.displayVehicle_Canvas() //canvas Layer for busVehicle
+          this.mapLayers.canvasLayerBusVehicle.show();
+          console.log('showing bus')
+        }
+      } else if (layerName === 'canvasLayerQueryRes') {
+        console.log('verify layer exits')
+        console.log(this.mapLayers.canvasLayerQueryRes)
+        if (!this.mapLayers.canvasLayerQueryRes) {
+          this.mapLayers.canvasLayerQueryRes = new CanvasLayer({
+            map: this.map,
+            update: this.updateCanvasQueryRes,
+            zIndex: 7 // Set the appropriate zIndex
+          });
+        }
+        console.log(this.mapLayers.canvasLayerQueryRes)
+        if (this.mapLayers.canvasLayerQueryRes) {
+          this.updateCanvasQueryRes();
+          this.mapLayers.canvasLayerQueryRes.show();
+          console.log('showing res')
+        }
+      }
+    },
+    async updateCanvasQueryRes() {
+      this.map.clearOverlays();
+      for(const trip of this.QueryTrips){
+        const points=trip.points;
+        this.drawSingleTrip(points);
+      }
+    },
+    drawSingleTrip(ps){
+      var points = [];
+      for(const p of ps){
+        let x=p.lng;
+        let y=p.lat;
+        console.log(x,y);
+        points.push(new BMap.Point(x,y));
+      }
+      var randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+      var polyline = new BMap.Polyline(points, { strokeColor: randomColor, strokeWeight: 10, strokeOpacity: 0 });
+      this.map.addOverlay(polyline);
+    },
+    getQueryRes(newValue) {
+      // 在父组件中接收 update:value 事件并更新 QueryTrips 的值
+      this.QueryTrips = newValue;
+      console.log('get query res!!!!!')
+      console.log(this.QueryTrips)
     },
     async updateCanvasBusVehicle() {
       let that = this
@@ -401,18 +469,10 @@ export default {
       this.updateCanvasLine_roadSpeed(_this.zr)
       _this.zr.resize() //solve the offset caused by dragging or zooming the map
       //data prepare Test
-      if (that.drawerData.marker_points.length > 0) {
-        await that.selectNearestVehicle(10)
-        var points = that.nearestVehicleData.points
-        var weights = that.nearestVehicleData.speeds
-        var bearings = that.nearestVehicleData.bearings
-        var infos = that.nearestVehicleData.vehicleInfos
-      } else {
-        var points = that.visualVehicles.points
-        var weights = that.visualVehicles.speeds
-        var bearings = that.visualVehicles.bearings
-        var infos = that.visualVehicles.vehicleInfos
-      }
+      var points = that.visualVehicles.points
+      var weights = that.visualVehicles.speeds
+      var bearings = that.visualVehicles.bearings
+      var infos = that.visualVehicles.vehicleInfos
       //draw vehicle points
       for (let k = 0; k < weights.length; k++) {
         const pixel = that.map.pointToPixel(points[k])
@@ -543,13 +603,6 @@ export default {
             points: points,
             smooth: 1
           },
-          onmouseover: (e) => {
-            this.routeTipVisible = true
-            this.selectRouteId = routeId
-          },
-          onmouseout: (e) => {
-            setTimeout(() => this.routeTipVisible = false, 500)
-          }
         })
         zr.add(line)
       })
@@ -662,8 +715,3 @@ export default {
   }
 }
 </script>
-
-
-
-
-

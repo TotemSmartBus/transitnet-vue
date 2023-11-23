@@ -31,7 +31,7 @@
 
 <script>
 import TrajSearchFormRangeRT from './TrajSearchFormRangeRT.vue'
-import TrajSearchResultRangeRT from '@/components/TrajSearchResultRangeRT.vue'
+import TrajSearchResultRangeRT from './TrajSearchResultRangeRT.vue'
 
 export default {
   components: { TrajSearchResultRangeRT, TrajSearchFormRangeRT },
@@ -49,7 +49,7 @@ export default {
   methods: {
     receiveResult(data) {
       this.result = data
-      //this.$emit('handleQuery', data)
+      this.$emit('update:value', data.trips);
     },
     clearData(){
       this.result={}

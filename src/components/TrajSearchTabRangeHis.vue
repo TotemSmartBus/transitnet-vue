@@ -30,7 +30,7 @@
 
 <script>
 import TrajSearchFormRangeHis from './TrajSearchFormRangeHis.vue'
-import TrajSearchResultRangeHis from '@/components/TrajSearchResultRangeHis.vue'
+import TrajSearchResultRangeHis from './TrajSearchResultRangeHis.vue'
 
 export default {
   components: { TrajSearchResultRangeHis, TrajSearchFormRangeHis },
@@ -50,7 +50,7 @@ export default {
       console.log("Tab data:"+data);
       this.result = data
       console.log("Tab res:"+this.result);
-      //this.$emit('handleQuery', data)
+      this.$emit('update:value', data.trips);
     },
     clearData(){
       this.result={}

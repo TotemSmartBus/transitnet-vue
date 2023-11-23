@@ -29,7 +29,7 @@
 
 <script>
 import TrajSearchFormKnnHis from './TrajSearchFormKnnHis.vue'
-import TrajSearchResultKnnHis from '@/components/TrajSearchResultKnnHis.vue'
+import TrajSearchResultKnnHis from './TrajSearchResultKnnHis.vue'
 
 export default {
   components: { TrajSearchResultKnnHis, TrajSearchFormKnnHis },
@@ -49,7 +49,7 @@ export default {
       console.log("Tab data:"+data);
       this.result = data
       console.log("Tab res:"+this.result.buses);
-      //this.$emit('handleQuery', data)
+      this.$emit('update:value', data.trips);
     },
     clearData(){
       this.result={}
