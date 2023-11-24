@@ -1,6 +1,5 @@
 <template>
   <div id="root">
-    <!--    <Notice />-->
     <el-container>
       <el-aside :width="'350px'"
                 style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
@@ -27,10 +26,9 @@
           </el-tab-pane>
         </el-tabs>
       </el-aside>
-
-        <el-container height="100%">
+      <el-container height="100%">
           <el-main>
-            <el-button @click="toggleCanvasLayer" type="danger">Switch showing data</el-button>
+            <!--<el-button @click="toggleCanvasLayer" type="danger">Switch showing data</el-button>-->
             <div id="map_container" @mousemove="mouseMove">
               <div id="legendVehicle" ref="mapLegendVehicle"></div>
               <div id="legendRoadSpeed" ref="mapLegendRoadSpeed"></div>
@@ -43,11 +41,34 @@
           </el-main>
         </el-container>
     </el-container>
+
+    <div id="resultViual" class="el-overlay" v-show="dialogVisible">
+      <!-- 模态框内容 -->
+      <div class="el-overlay-dialog"  v-show="dialogVisible">
+        <!-- 左侧选单 -->
+        <el-scrollbar style="height: 95%; overflow: auto" v-show="dialogVisible">
+          <div class="left-buttons" style="height: 80%">
+            <el-button @click="drawSelectedTrips" type="primary">Draw</el-button>
+            <el-button @click="closeDialog" type="primary">Close</el-button>
+          </div>
+          <el-checkbox-group v-model="selectedTrips">
+            <el-checkbox v-for="trip in QueryTrips" :label="trip.tripid" :key="trip.tripid" class="single-checkbox">
+              {{ trip.tripid }}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-scrollbar>
+
+        <!-- 右侧地图 -->
+        <div id="resMap" class="map-container" v-show="dialogVisible">
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 
 /* eslint-disable */
+import 'leaflet/dist/leaflet.css';
 import * as zrender from 'zrender'
 import CanvasPainter from 'zrender/lib/canvas/Painter'
 import '../assets/map.css'
@@ -66,6 +87,7 @@ import {ArrowLeft, ArrowRight, Close} from '@element-plus/icons-vue'
 import BaiduMap from '@/components/BaiduMap.vue'
 import {ElTag} from 'element-plus'
 import Notice from '@/components/Notice.vue'
+import L from 'leaflet';
 zrender.registerPainter('canvas', CanvasPainter)
 
 
@@ -82,6 +104,8 @@ export default {
   },
   data() {
     return {
+      dialogVisible: false,
+      selectedTrips: [],
       QueryTrips: {},
       currentCanvasLayer: 'canvasLayerBusVehicle', // 追踪当前图层
       ak: 'g5f0bc3uZ0mKzHptwS1ugqMQ',
@@ -96,6 +120,7 @@ export default {
       // 过滤可见的路线
       visibleRoute: new Map(),
       map: {},
+      resMap:{},
       visualVehicles: {
         vehicleIds: [],
         vehicleInfos: [],
@@ -163,6 +188,19 @@ export default {
       //下面这两个就是地图上代表路线的各色粗线和代表车的各色箭头点
       await _this.displayRouteShapeAndSpeed_Canvas()
       await _this.displayVehicle_Canvas() //canvas Layer for busVehicle
+
+      this.resMap = L.map('resMap',{maxBounds: L.latLngBounds(L.latLng(40.47, -74.30), L.latLng(40.95, -73.60))
+      });
+      let center = L.latLng(40.7044,-73.95);
+      this.resMap.setView(center,12);
+      // 添加Mapbox瓦片图层
+      L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+        attribution: '© Mapbox',
+        id: 'wuyuming021212/clpc77zfw002h01px5k0hd4nl',
+        accessToken: 'pk.eyJ1Ijoid3V5dW1pbmcwMjEyMTIiLCJhIjoiY2xwYzNpemp1MGo0YjJqcHBhaG9iMXh6ZSJ9.xs-gupqskb4MQXqHcB97IQ',
+        maxZoom: 16,
+        minZoom: 10,
+      }).addTo(this.resMap);
     },
     showLegend() {
       //init canvas for vehicle speed legend
@@ -248,9 +286,9 @@ export default {
       //drawer setting
       const drawer = new BMapLib.DrawingManager(_this.map, {
         isOpen: false, // disable drawing mode
-        enableDrawingTool: true, // displayOnInit tool bar
+        enableDrawingTool: true, // displayOnInit tools
         drawingToolOptions: {
-          anchor: BMAP_ANCHOR_TOP_LEFT, // position of the tool bar
+          anchor: BMAP_ANCHOR_TOP_LEFT, // position of the tools
           offset: new BMap.Size(5, 5), // offset from the position
           scale: 1.2,
           drawingModes: [
@@ -297,7 +335,6 @@ export default {
         zIndex: CANVAS_ZINDEX_VEHICLE //make sure the layer's index is high enough to trigger the mouse methods
       })
     },
-
     async displayRouteShapeAndSpeed_Canvas() {
       this.$message({
         message: 'Loading the routes history speed',
@@ -452,11 +489,24 @@ export default {
       var polyline = new BMap.Polyline(points, { strokeColor: randomColor, strokeWeight: 10, strokeOpacity: 0 });
       this.map.addOverlay(polyline);
     },
-    getQueryRes(newValue) {
+    async getQueryRes(newValue) {
       // 在父组件中接收 update:value 事件并更新 QueryTrips 的值
       this.QueryTrips = newValue;
-      console.log('get query res!!!!!')
       console.log(this.QueryTrips)
+      //如果不使用模态框，以下代码都不需要，只需要重新启用切换图层按钮
+      this.dialogVisible=true;
+      let center = L.latLng(40.7044,-73.95);
+      this.resMap.setView(center,12);
+    },
+    closeDialog(){
+      this.dialogVisible=false;
+    },
+    drawSelectedTrips(){
+      const selectedIndexes = this.selectedTrips.map((tripId) => {
+        return this.QueryTrips.findIndex((trip) => trip.tripid === tripId);
+      });
+      console.log(selectedIndexes);
+
     },
     async updateCanvasBusVehicle() {
       let that = this
@@ -579,7 +629,7 @@ export default {
         _this.dealError(error)
       })
       if (_this.mapLayers.canvasLayerBusVehicle != null)
-        _this.updateCanvasBusVehicle() //update the display
+        await _this.updateCanvasBusVehicle() //update the display
     },
     /**
      * @description updateCanvas Line
@@ -655,7 +705,7 @@ export default {
         newMap.set(route.id, that.routeTraj.get(route.id))
       })
       that.visibleRoute = newMap
-      that.updateCanvasBusVehicle()
+      await that.updateCanvasBusVehicle()
     },
 
     /**
@@ -715,3 +765,58 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* 模态框背景样式 */
+.el-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+}
+
+/* 模态框内容样式 */
+.el-overlay-dialog {
+  display: flex;
+  width: 80%; /* 调整为你想要的宽度 */
+  height: 80%; /* 调整为你想要的高度 */
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden; /* 避免内容溢出 */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform:translate(-50%,-50%) ;
+}
+/*下面这个css文件千万不能删除！！！！！！！*/
+/* 左侧选单样式 */
+.el-scrollbar {
+  flex: 25%; /* 让左侧占据剩余空间 */
+  padding: 20px;
+  overflow: auto; /* 如果内容超过容器高度，启用滚动条 */
+  height: 95%;
+}
+
+/* 右侧地图样式 */
+.map-container {
+  flex: 75%; /* 右侧占据两倍的空间 */
+  border-left: 1px solid #ccc; /* 添加分隔线 */
+  padding: 20px;
+}
+.single-checkbox {
+  display: block;
+  margin-bottom: 10px; /* 可以根据需要调整间距 */
+}
+#resMap{
+
+  background-color: lightskyblue;
+}
+
+
+</style>
