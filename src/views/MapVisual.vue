@@ -5,63 +5,74 @@
                 style="margin-left: 10px;margin-right: 10px;transition:width .1s" id="asideLeft">
         <el-tabs v-model="activeName" @tab-click="clearAll_tabdata">
           <el-tab-pane label="Real-time Range Query" name="first">
-            <TrajSearchTabRangeRT ref="realTimeRangeTab" :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
+            <TrajSearchTabRangeRT ref="realTimeRangeTab" :polyLines="drawerData.rect_polygons"
+                                  :labels="drawerData.rect_label"
                                   v-model="QueryTrips"
-                                  @update:value="getQueryRes" />
+                                  @update:value="getQueryRes"/>
           </el-tab-pane>
           <el-tab-pane label="Historical Range Query" name="historical-range-query">
-            <TrajSearchTabRangeHis ref="historyRangeTab" :polyLines="drawerData.rect_polygons" :labels="drawerData.rect_label"
+            <TrajSearchTabRangeHis ref="historyRangeTab" :polyLines="drawerData.rect_polygons"
+                                   :labels="drawerData.rect_label"
                                    v-model="QueryTrips"
-                                   @update:value="getQueryRes" />
+                                   @update:value="getQueryRes"/>
           </el-tab-pane>
           <el-tab-pane label="Real-time KNN Query" name="real-time-knn-query">
-            <TrajSearchTabKnnRT ref="realTimeKnnTab" :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
+            <TrajSearchTabKnnRT ref="realTimeKnnTab" :polyLines="drawerData.marker_polygons"
+                                :labels="drawerData.marker_label"
                                 v-model="QueryTrips"
                                 @update:value="getQueryRes"/>
           </el-tab-pane>
           <el-tab-pane label="Historical KNN Query" name="historical-knn-query">
-            <TrajSearchTabKnnHis ref="historyKnnTab" :polyLines="drawerData.marker_polygons" :labels="drawerData.marker_label"
+            <TrajSearchTabKnnHis ref="historyKnnTab" :polyLines="drawerData.marker_polygons"
+                                 :labels="drawerData.marker_label"
                                  v-model="QueryTrips"
-                                 @update:value="getQueryRes" />
+                                 @update:value="getQueryRes"/>
           </el-tab-pane>
         </el-tabs>
       </el-aside>
       <el-container height="100%">
-          <el-main>
-            <!--<el-button @click="toggleCanvasLayer" type="danger">Switch showing data</el-button>-->
-            <div id="map_container" @mousemove="mouseMove">
-              <div id="legendVehicle" ref="mapLegendVehicle"></div>
-              <div id="legendRoadSpeed" ref="mapLegendRoadSpeed"></div>
-              <el-button id="clearDrawButton" @click="clearAllDraw" type="danger">Clear Draw</el-button>
-              <div id="baiduMap"></div>
-              <div id="detailWindow" ref="detailWindow">
-                <div id="detailTail"></div>
-              </div>
+        <el-main>
+          <!--<el-button @click="toggleCanvasLayer" type="danger">Switch showing data</el-button>-->
+          <div id="map_container" @mousemove="mouseMove">
+            <div id="legendVehicle" ref="mapLegendVehicle"></div>
+            <div id="legendRoadSpeed" ref="mapLegendRoadSpeed"></div>
+            <el-button id="clearDrawButton" @click="clearAllDraw" type="danger">Clear Draw</el-button>
+            <div id="baiduMap"></div>
+            <div id="detailWindow" ref="detailWindow">
+              <div id="detailTail"></div>
             </div>
-          </el-main>
-        </el-container>
+          </div>
+        </el-main>
+      </el-container>
     </el-container>
 
     <div id="resultViual" class="el-overlay" v-show="dialogVisible">
       <!-- 模态框内容 -->
-      <div class="el-overlay-dialog"  v-show="dialogVisible">
+      <div class="el-overlay-dialog" v-show="dialogVisible">
         <!-- 左侧选单 -->
-        <el-scrollbar style="height: 95%; overflow: auto" v-show="dialogVisible">
-          <div class="left-buttons" style="height: 80%">
-            <el-button @click="drawSelectedTrips" type="primary">Draw</el-button>
-            <el-button @click="closeDialog" type="primary">Close</el-button>
-            <el-button @click="clearResDraw" type="primary">Clear</el-button>
-          </div>
-          <el-checkbox-group v-model="selectedTrips">
-            <el-checkbox v-for="trip in QueryTrips" :label="trip.tripid" :key="trip.tripid" class="single-checkbox">
-              {{ trip.tripid }}
-            </el-checkbox>
-          </el-checkbox-group>
-        </el-scrollbar>
-
-        <!-- 右侧地图 -->
-        <div id="resMap" class="map-container" v-show="dialogVisible">
-        </div>
+        <el-container>
+          <el-aside width="250px">
+            <div class="left-buttons" style="padding: 10px">
+              <el-button @click="drawSelectedTrips" type="primary">Draw</el-button>
+              <el-button @click="closeDialog" type="primary">Close</el-button>
+              <el-button @click="clearResDraw" type="primary">Clear</el-button>
+            </div>
+            <el-scrollbar style="overflow: scroll" v-show="dialogVisible">
+              <el-checkbox-group v-model="selectedTrips">
+                <el-checkbox v-for="trip in QueryTrips" :label="trip.tripid" :key="trip.tripid" class="single-checkbox">
+                  <el-tooltip v-model="tooltipVisible" effect="dark" :content="trip.tripid">
+                    <span @mouseover="showTooltip" @mouseout="hideTooltip">{{ trip.tripid }}</span>
+                  </el-tooltip>
+                </el-checkbox>
+              </el-checkbox-group>
+            </el-scrollbar>
+          </el-aside>
+          <el-main>
+            <!-- 右侧地图 -->
+            <div id="resMap" class="map-container" v-show="dialogVisible">
+            </div>
+          </el-main>
+        </el-container>
       </div>
     </div>
   </div>
@@ -89,9 +100,8 @@ import BaiduMap from '@/components/BaiduMap.vue'
 import {ElTag} from 'element-plus'
 import Notice from '@/components/Notice.vue'
 import L from 'leaflet';
-import { toRaw } from 'vue';
+import {toRaw} from 'vue';
 zrender.registerPainter('canvas', CanvasPainter)
-
 
 
 export default {
@@ -106,6 +116,7 @@ export default {
   },
   data() {
     return {
+      tooltipVisible:false,
       dialogVisible: false,
       selectedTrips: [],
       QueryTrips: {},
@@ -122,7 +133,7 @@ export default {
       // 过滤可见的路线
       visibleRoute: new Map(),
       map: {},
-      resMap:{},
+      resMap: {},
       visualVehicles: {
         vehicleIds: [],
         vehicleInfos: [],
@@ -132,7 +143,7 @@ export default {
       },
       mapLayers: {
         canvasLayerBusVehicle: null,
-        canvasLayerQueryRes:null
+        canvasLayerQueryRes: null
       },
       timer: undefined,
       drawerData: {
@@ -173,12 +184,12 @@ export default {
       _this.map = new BMap.Map('baiduMap', {
         enableMapClick: false
       })
-      _this.map.setMapStyle({ style: 'light' })
+      _this.map.setMapStyle({style: 'light'})
       _this.map.centerAndZoom(new BMap.Point(-73.95, 40.7044), 12) //set map center and zoom
       _this.map.enableScrollWheelZoom(true);
 
       ['dragging', 'dragstart', 'dragend', 'zoomstart', 'zoomend'].forEach(
-          function(item) {
+          function (item) {
             _this.map.addEventListener(item, () => {
               if (_this.$refs.detailWindow.style.display === 'block') {
                 _this.setDetailWindowPosition()
@@ -190,11 +201,16 @@ export default {
       //下面这两个就是地图上代表路线的各色粗线和代表车的各色箭头点
       await _this.displayRouteShapeAndSpeed_Canvas()
       await _this.displayVehicle_Canvas() //canvas Layer for busVehicle
-
-      this.resMap = L.map('resMap',{maxBounds: L.latLngBounds(L.latLng(40.47, -74.30), L.latLng(40.95, -73.60))
+    },
+    async initResMap(){
+      let _this=this;
+      //await _this.dialogVisible=true;
+      //await _this.dialogVisible=false;
+      _this.resMap = L.map('resMap', {
+        maxBounds: L.latLngBounds(L.latLng(40.47, -74.30), L.latLng(40.95, -73.60))
       });
-      let center = L.latLng(40.7044,-73.95);
-      this.resMap.setView(center,12);
+      let center = L.latLng(40.7044, -73.95);
+      _this.resMap.setView(center, 12);
       // 添加Mapbox瓦片图层
       L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: '© Mapbox',
@@ -301,7 +317,7 @@ export default {
         rectangleOptions: rectStyle
       })
       //after rect draw complete
-      let rectComplete = function(rect) {
+      let rectComplete = function (rect) {
         _this.drawerData.rect_label.pop()
         _this.drawerData.rect_polygons.pop()
         let label = new BMap.Label(
@@ -312,7 +328,7 @@ export default {
         //drawRect API
       }
       //after marker draw complete
-      let markerComplete = function(marker) {
+      let markerComplete = function (marker) {
         let label = new BMap.Label(
             'Points: '
         )
@@ -463,60 +479,72 @@ export default {
     },
     async updateCanvasQueryRes() {
       this.map.clearOverlays();
-      for(const trip of this.QueryTrips){
-        const points=trip.points;
+      for (const trip of this.QueryTrips) {
+        const points = trip.points;
         this.drawSingleTrip(points);
       }
     },
-    drawSingleTrip(ps){
+    drawSingleTrip(ps) {
       var points = [];
-      for(const p of ps){
-        let x=p.lng;
-        let y=p.lat;
-        points.push(new BMap.Point(x,y));
+      for (const p of ps) {
+        let x = p.lng;
+        let y = p.lat;
+        points.push(new BMap.Point(x, y));
       }
-      var randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-      var polyline = new BMap.Polyline(points, { strokeColor: randomColor, strokeWeight: 10, strokeOpacity: 0 });
+      var randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+      var polyline = new BMap.Polyline(points, {strokeColor: randomColor, strokeWeight: 10, strokeOpacity: 0});
       this.map.addOverlay(polyline);
+    },
+    showTooltip() {
+      this.tooltipVisible = true;
+    },
+    hideTooltip() {
+      this.tooltipVisible = false;
     },
     async getQueryRes(newValue) {
       // 在父组件中接收 update:value 事件并更新 QueryTrips 的值
       this.QueryTrips = newValue;
       //如果不使用模态框，以下代码都不需要，只需要重新启用切换图层按钮
-      this.dialogVisible=true;
-      let center = L.latLng(40.7044,-73.95);
+      this.dialogVisible = true;
 
-      // 根据条件更新 selectedTrips
-      if (this.QueryTrips.length > 0) {
-        if (this.QueryTrips.length <= 5) {
-          // 如果 QueryTrips 数组长度小于等于5，勾选全部
-          this.selectedTrips = this.QueryTrips.map(trip => trip.tripid);
-        } else {
-          // 如果 QueryTrips 数组长度大于5，勾选最前面的五项
-          this.selectedTrips = this.QueryTrips.slice(0, 5).map(trip => trip.tripid);
+      await this.$nextTick(() => {
+        // 在 $nextTick 回调中初始化地图
+        this.initResMap();
+
+        // 根据条件更新 selectedTrips
+        if (this.QueryTrips.length > 0) {
+          if (this.QueryTrips.length <= 5) {
+            // 如果 QueryTrips 数组长度小于等于5，勾选全部
+            this.selectedTrips = this.QueryTrips.map(trip => trip.tripid);
+          } else {
+            // 如果 QueryTrips 数组长度大于5，勾选最前面的五项
+            this.selectedTrips = this.QueryTrips.slice(0, 5).map(trip => trip.tripid);
+          }
         }
-      }
-      this.drawOriginPath();
+
+        this.drawOriginPath();
+      });
+
     },
-    drawOriginPath(){
-      if(this.drawerData.rect_polygons.length>0){
-        let rect=this.drawerData.rect_polygons[0].lv;
-        let p1=rect.Il;
-        let p2=rect.Zl;
+    drawOriginPath() {
+      if (this.drawerData.rect_polygons.length > 0) {
+        let rect = this.drawerData.rect_polygons[0].lv;
+        let p1 = rect.Il;
+        let p2 = rect.Zl;
         const bounds = [
           [p2.lat, p2.lng],
           [p1.lat, p1.lng],
         ];
-        const range = L.rectangle(bounds, { color: 'green', weight: 3 }).addTo(this.resMap);
+        const range = L.rectangle(bounds, {color: 'green', weight: 3}).addTo(this.resMap);
         const center = range.getBounds().getCenter();
         this.resMap.panTo(center);
-      }else if(this.drawerData.marker_polygons.length>0){
-        let ps=toRaw(this.drawerData.marker_polygons);
-        let trip=[];
+      } else if (this.drawerData.marker_polygons.length > 0) {
+        let ps = toRaw(this.drawerData.marker_polygons);
+        let trip = [];
         for (const p of ps) {
-          trip.push([p.point.lat,p.point.lng])
+          trip.push([p.point.lat, p.point.lng])
         }
-        const userline = L.polyline(trip, { color: 'green',opacity: 0.8, weight: 5}).addTo(this.resMap);
+        const userline = L.polyline(trip, {color: 'green', opacity: 0.8, weight: 5}).addTo(this.resMap);
         userline.bindTooltip('trip data provided by user');
         userline.on('mouseover', this.onPolylineMouseover);
         userline.on('mouseout', this.onPolylineMouseout);
@@ -524,15 +552,15 @@ export default {
         this.resMap.panTo(center);
       }
     },
-    closeDialog(){
-      this.dialogVisible=false;
+    closeDialog() {
+      this.dialogVisible = false;
       this.resMap.eachLayer(layer => {
         if (layer instanceof L.Polyline) {
           this.resMap.removeLayer(layer);
         }
       });
     },
-    clearResDraw(){
+    clearResDraw() {
       this.resMap.eachLayer(layer => {
         if (layer instanceof L.Polyline) {
           this.resMap.removeLayer(layer);
@@ -540,18 +568,18 @@ export default {
       });
       this.drawOriginPath();
     },
-    drawSelectedTrips(){
+    drawSelectedTrips() {
       const selectedIndexes = this.selectedTrips.map((tripId) => {
         return this.QueryTrips.findIndex((trip) => trip.tripid === tripId);
       });
-      let trips_arr=toRaw(this.QueryTrips);
+      let trips_arr = toRaw(this.QueryTrips);
       for (const it of selectedIndexes) {
-        let ps_dic=trips_arr[it].points;
-        let ps=[];
+        let ps_dic = trips_arr[it].points;
+        let ps = [];
         for (const p of ps_dic) {
-          ps.push([p.lat,p.lng])
+          ps.push([p.lat, p.lng])
         }
-        const polyline = L.polyline(ps, { color: 'blue',opacity: 0.4, weight: 5}).addTo(this.resMap);
+        const polyline = L.polyline(ps, {color: 'blue', opacity: 0.4, weight: 5}).addTo(this.resMap);
         polyline.bindTooltip(trips_arr[it].tripid);
         // 添加交互效果
         polyline.on('mouseover', this.onPolylineMouseover);
@@ -561,8 +589,8 @@ export default {
     onPolylineMouseover(event) {
       // 在这里处理鼠标悬停时的操作，比如高亮显示并显示文本信息
       const polyline = event.target;
-      if(polyline.getTooltip().getContent()!='trip data provided by user'){
-        polyline.setStyle({ color: 'red', opacity:0.8}); // 高亮显示
+      if (polyline.getTooltip().getContent() != 'trip data provided by user') {
+        polyline.setStyle({color: 'red', opacity: 0.8}); // 高亮显示
       }
       // 显示Tooltip
       const lat1lng = event.latlng;
@@ -571,8 +599,8 @@ export default {
     onPolylineMouseout(event) {
       // 在这里处理鼠标移出时的操作，比如取消高亮显示
       const polyline = event.target;
-      if(polyline.getTooltip().getContent()!='trip data provided by user'){
-        polyline.setStyle({ color: 'blue',opacity:0.4}); // 恢复原始颜色
+      if (polyline.getTooltip().getContent() != 'trip data provided by user') {
+        polyline.setStyle({color: 'blue', opacity: 0.4}); // 恢复原始颜色
       }
     },
     async updateCanvasBusVehicle() {
@@ -604,7 +632,7 @@ export default {
             fill: getVehicleColor(weights[k]),
             stroke: '#faf9f9' //'#2e2d2d'
           },
-          onclick: async function() {
+          onclick: async function () {
             that.$message({
               message: 'Loading the detailWindow',
               type: 'success'
@@ -821,7 +849,7 @@ export default {
         historyKnnTabInstance.clearData();
       }
     },
-    clearAll_tabdata(){
+    clearAll_tabdata() {
       this.clearAllDraw();
     },
     mouseMove(event) {
@@ -859,8 +887,9 @@ export default {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform:translate(-50%,-50%) ;
+  transform: translate(-50%, -50%);
 }
+
 /*下面这个css文件千万不能删除！！！！！！！*/
 /* 左侧选单样式 */
 .el-scrollbar {
@@ -874,13 +903,15 @@ export default {
 .map-container {
   flex: 75%; /* 右侧占据两倍的空间 */
   border-left: 1px solid #ccc; /* 添加分隔线 */
-  padding: 20px;
+  height: 100%;
 }
+
 .single-checkbox {
   display: block;
   margin-bottom: 10px; /* 可以根据需要调整间距 */
 }
-#resMap{
+
+#resMap {
 
   background-color: lightskyblue;
 }

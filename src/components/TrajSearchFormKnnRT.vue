@@ -16,7 +16,7 @@
           <el-input v-model="k" placeholder="K" style="width: 50%"></el-input>
         </el-col>
         <el-col :span="16">
-          <label>the window(s):</label>
+          <label>time window(s):</label>
           <el-input v-model="backdate_s" placeholder="backdate" style="width: 40%"></el-input>
         </el-col>
       </el-row>
