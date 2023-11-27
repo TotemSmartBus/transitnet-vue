@@ -50,6 +50,7 @@
           <div class="left-buttons" style="height: 80%">
             <el-button @click="drawSelectedTrips" type="primary">Draw</el-button>
             <el-button @click="closeDialog" type="primary">Close</el-button>
+            <el-button @click="clearResDraw" type="primary">Clear</el-button>
           </div>
           <el-checkbox-group v-model="selectedTrips">
             <el-checkbox v-for="trip in QueryTrips" :label="trip.tripid" :key="trip.tripid" class="single-checkbox">
@@ -88,6 +89,7 @@ import BaiduMap from '@/components/BaiduMap.vue'
 import {ElTag} from 'element-plus'
 import Notice from '@/components/Notice.vue'
 import L from 'leaflet';
+import { toRaw } from 'vue';
 zrender.registerPainter('canvas', CanvasPainter)
 
 
@@ -497,16 +499,64 @@ export default {
       this.dialogVisible=true;
       let center = L.latLng(40.7044,-73.95);
       this.resMap.setView(center,12);
+
+      // 根据条件更新 selectedTrips
+      if (this.QueryTrips.length > 0) {
+        console.log('>0');
+        if (this.QueryTrips.length <= 5) {
+          console.log('<=5');
+          // 如果 QueryTrips 数组长度小于等于5，勾选全部
+          this.selectedTrips = this.QueryTrips.map(trip => trip.tripid);
+        } else {
+          console.log('>5')
+          // 如果 QueryTrips 数组长度大于5，勾选最前面的五项
+          this.selectedTrips = this.QueryTrips.slice(0, 5).map(trip => trip.tripid);
+        }
+      }
+      console.log('selectedtps');
+      console.log(this.selectedTrips);
+
     },
     closeDialog(){
       this.dialogVisible=false;
+    },
+    clearResDraw(){
+      this.resMap.eachLayer(layer => {
+        if (layer instanceof L.Polyline) {
+          this.resMap.removeLayer(layer);
+        }
+      });
     },
     drawSelectedTrips(){
       const selectedIndexes = this.selectedTrips.map((tripId) => {
         return this.QueryTrips.findIndex((trip) => trip.tripid === tripId);
       });
-      console.log(selectedIndexes);
-
+      let trips_arr=toRaw(this.QueryTrips);
+      for (const it of selectedIndexes) {
+        let ps_dic=trips_arr[it].points;
+        let ps=[];
+        for (const p of ps_dic) {
+          ps.push([p.lat,p.lng])
+        }
+        const polyline = L.polyline(ps, { color: 'blue',opacity: 0.4}).addTo(this.resMap);
+        polyline.bindTooltip(trips_arr[it].tripid);
+        // 添加交互效果
+        polyline.on('mouseover', this.onPolylineMouseover);
+        polyline.on('mouseout', this.onPolylineMouseout);
+      }
+    },
+    onPolylineMouseover(event) {
+      // 在这里处理鼠标悬停时的操作，比如高亮显示并显示文本信息
+      const polyline = event.target;
+      polyline.setStyle({ color: 'red', opacity:0.8}); // 高亮显示
+      // 显示Tooltip
+      const lat1lng = event.latlng;
+      polyline.openTooltip(lat1lng);
+    },
+    onPolylineMouseout(event) {
+      // 在这里处理鼠标移出时的操作，比如取消高亮显示
+      const polyline = event.target;
+      polyline.setStyle({ color: 'blue',opacity:0.4}); // 恢复原始颜色
     },
     async updateCanvasBusVehicle() {
       let that = this
