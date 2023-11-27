@@ -314,7 +314,7 @@ export default {
       //after marker draw complete
       let markerComplete = function(marker) {
         let label = new BMap.Label(
-            'P'+_this.drawerData.marker_polygons.length
+            'Points: '
         )
         _this.drawerData.marker_label.push(label)
         _this.drawerData.marker_polygons.push(marker)
@@ -411,20 +411,16 @@ export default {
     },
     toggleCanvasLayer() {
       // 隐藏当前图层
-      console.log('try to hide current layer'+this.currentCanvasLayer)
       this.hideCanvasLayer(this.currentCanvasLayer);
 
       // 切换当前显示的图层
       if (this.currentCanvasLayer === 'canvasLayerBusVehicle') {
         this.currentCanvasLayer = 'canvasLayerQueryRes';
-        console.log('switch to canvasLayerQueryRes')
       } else {
         this.currentCanvasLayer = 'canvasLayerBusVehicle';
-        console.log('switch to canvasLayerBusVehicle')
       }
 
       // 显示切换后的图层
-      console.log('try to show current layer'+this.currentCanvasLayer)
       this.showCanvasLayer(this.currentCanvasLayer);
     },
     hideCanvasLayer(layerName) {
@@ -433,13 +429,11 @@ export default {
         // 隐藏 canvasLayerBusVehicle 的逻辑
         if (this.mapLayers.canvasLayerBusVehicle) {
           this.mapLayers.canvasLayerBusVehicle.hide();
-          console.log('already hide canvasLayerBusVehicle')
         }
       } else if (layerName === 'canvasLayerQueryRes') {
         // 隐藏 canvasLayerQueryRes 的逻辑
         if (this.mapLayers.canvasLayerQueryRes) {
           this.mapLayers.canvasLayerQueryRes.hide();
-          console.log('already hide canvasLayerQueryRes')
         }
       }
     },
@@ -452,11 +446,8 @@ export default {
           this.displayRouteShapeAndSpeed_Canvas()
           this.displayVehicle_Canvas() //canvas Layer for busVehicle
           this.mapLayers.canvasLayerBusVehicle.show();
-          console.log('showing bus')
         }
       } else if (layerName === 'canvasLayerQueryRes') {
-        console.log('verify layer exits')
-        console.log(this.mapLayers.canvasLayerQueryRes)
         if (!this.mapLayers.canvasLayerQueryRes) {
           this.mapLayers.canvasLayerQueryRes = new CanvasLayer({
             map: this.map,
@@ -464,11 +455,9 @@ export default {
             zIndex: 7 // Set the appropriate zIndex
           });
         }
-        console.log(this.mapLayers.canvasLayerQueryRes)
         if (this.mapLayers.canvasLayerQueryRes) {
           this.updateCanvasQueryRes();
           this.mapLayers.canvasLayerQueryRes.show();
-          console.log('showing res')
         }
       }
     },
@@ -484,7 +473,6 @@ export default {
       for(const p of ps){
         let x=p.lng;
         let y=p.lat;
-        console.log(x,y);
         points.push(new BMap.Point(x,y));
       }
       var randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
@@ -494,31 +482,55 @@ export default {
     async getQueryRes(newValue) {
       // 在父组件中接收 update:value 事件并更新 QueryTrips 的值
       this.QueryTrips = newValue;
-      console.log(this.QueryTrips)
       //如果不使用模态框，以下代码都不需要，只需要重新启用切换图层按钮
       this.dialogVisible=true;
       let center = L.latLng(40.7044,-73.95);
-      this.resMap.setView(center,12);
 
       // 根据条件更新 selectedTrips
       if (this.QueryTrips.length > 0) {
-        console.log('>0');
         if (this.QueryTrips.length <= 5) {
-          console.log('<=5');
           // 如果 QueryTrips 数组长度小于等于5，勾选全部
           this.selectedTrips = this.QueryTrips.map(trip => trip.tripid);
         } else {
-          console.log('>5')
           // 如果 QueryTrips 数组长度大于5，勾选最前面的五项
           this.selectedTrips = this.QueryTrips.slice(0, 5).map(trip => trip.tripid);
         }
       }
-      console.log('selectedtps');
-      console.log(this.selectedTrips);
-
+      this.drawOriginPath();
+    },
+    drawOriginPath(){
+      if(this.drawerData.rect_polygons.length>0){
+        let rect=this.drawerData.rect_polygons[0].lv;
+        let p1=rect.Il;
+        let p2=rect.Zl;
+        const bounds = [
+          [p2.lat, p2.lng],
+          [p1.lat, p1.lng],
+        ];
+        const range = L.rectangle(bounds, { color: 'green', weight: 3 }).addTo(this.resMap);
+        const center = range.getBounds().getCenter();
+        this.resMap.panTo(center);
+      }else if(this.drawerData.marker_polygons.length>0){
+        let ps=toRaw(this.drawerData.marker_polygons);
+        let trip=[];
+        for (const p of ps) {
+          trip.push([p.point.lat,p.point.lng])
+        }
+        const userline = L.polyline(trip, { color: 'green',opacity: 0.8, weight: 5}).addTo(this.resMap);
+        userline.bindTooltip('trip data provided by user');
+        userline.on('mouseover', this.onPolylineMouseover);
+        userline.on('mouseout', this.onPolylineMouseout);
+        const center = userline.getBounds().getCenter();
+        this.resMap.panTo(center);
+      }
     },
     closeDialog(){
       this.dialogVisible=false;
+      this.resMap.eachLayer(layer => {
+        if (layer instanceof L.Polyline) {
+          this.resMap.removeLayer(layer);
+        }
+      });
     },
     clearResDraw(){
       this.resMap.eachLayer(layer => {
@@ -526,6 +538,7 @@ export default {
           this.resMap.removeLayer(layer);
         }
       });
+      this.drawOriginPath();
     },
     drawSelectedTrips(){
       const selectedIndexes = this.selectedTrips.map((tripId) => {
@@ -538,7 +551,7 @@ export default {
         for (const p of ps_dic) {
           ps.push([p.lat,p.lng])
         }
-        const polyline = L.polyline(ps, { color: 'blue',opacity: 0.4}).addTo(this.resMap);
+        const polyline = L.polyline(ps, { color: 'blue',opacity: 0.4, weight: 5}).addTo(this.resMap);
         polyline.bindTooltip(trips_arr[it].tripid);
         // 添加交互效果
         polyline.on('mouseover', this.onPolylineMouseover);
@@ -548,7 +561,9 @@ export default {
     onPolylineMouseover(event) {
       // 在这里处理鼠标悬停时的操作，比如高亮显示并显示文本信息
       const polyline = event.target;
-      polyline.setStyle({ color: 'red', opacity:0.8}); // 高亮显示
+      if(polyline.getTooltip().getContent()!='trip data provided by user'){
+        polyline.setStyle({ color: 'red', opacity:0.8}); // 高亮显示
+      }
       // 显示Tooltip
       const lat1lng = event.latlng;
       polyline.openTooltip(lat1lng);
@@ -556,7 +571,9 @@ export default {
     onPolylineMouseout(event) {
       // 在这里处理鼠标移出时的操作，比如取消高亮显示
       const polyline = event.target;
-      polyline.setStyle({ color: 'blue',opacity:0.4}); // 恢复原始颜色
+      if(polyline.getTooltip().getContent()!='trip data provided by user'){
+        polyline.setStyle({ color: 'blue',opacity:0.4}); // 恢复原始颜色
+      }
     },
     async updateCanvasBusVehicle() {
       let that = this
