@@ -116,6 +116,7 @@ export default {
   },
   data() {
     return {
+      alreadyResMap:false,
       tooltipVisible:false,
       dialogVisible: false,
       selectedTrips: [],
@@ -185,7 +186,7 @@ export default {
         enableMapClick: false
       })
       _this.map.setMapStyle({style: 'light'})
-      _this.map.centerAndZoom(new BMap.Point(-73.95, 40.7044), 12) //set map center and zoom
+      _this.map.centerAndZoom(new BMap.Point(-73.95, 40.7044), 14) //set map center and zoom
       _this.map.enableScrollWheelZoom(true);
 
       ['dragging', 'dragstart', 'dragend', 'zoomstart', 'zoomend'].forEach(
@@ -508,9 +509,11 @@ export default {
       this.dialogVisible = true;
 
       await this.$nextTick(() => {
-        // 在 $nextTick 回调中初始化地图
-        this.initResMap();
-
+        if(this.alreadyResMap===false){
+          // 在 $nextTick 回调中初始化地图
+          this.initResMap();
+          this.alreadyResMap=true;
+        }
         // 根据条件更新 selectedTrips
         if (this.QueryTrips.length > 0) {
           if (this.QueryTrips.length <= 5) {
