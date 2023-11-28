@@ -54,8 +54,8 @@
           <el-aside width="250px">
             <div class="left-buttons" style="padding: 10px">
               <el-button @click="drawSelectedTrips" type="primary">Draw</el-button>
-              <el-button @click="closeDialog" type="primary">Close</el-button>
               <el-button @click="clearResDraw" type="primary">Clear</el-button>
+              <el-button @click="closeDialog" type="primary">Close</el-button>
             </div>
             <el-scrollbar style="overflow: scroll" v-show="dialogVisible">
               <el-checkbox-group v-model="selectedTrips">
