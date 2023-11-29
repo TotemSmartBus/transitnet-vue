@@ -3,8 +3,8 @@
     <h5>{{"Note: click on the \"Clear Draw\" button to clear the results."}}</h5>
     <h4>{{}}</h4>
     <el-form-item v-for="(point, index) in this.points" :key="index">
-      <el-text class="mx-1">{{ points[index]['point'].lat + ',' + points[index]['point'].lng }}</el-text>
-      <!--<el-input v-model="points[index]['point'].time" placeholder="yyyy-MM-dd HH:mm:ss" type="text" @input="handleInput(index, $event)"></el-input>-->
+      <el-text class="mx-1">{{ point['point'].lat + ',' + point['point'].lng }}</el-text>
+      <el-input v-model="inputText[index]" @input="setValue(index, $event)"></el-input>
     </el-form-item>
 
     <el-form-item>
@@ -32,18 +32,46 @@ export default {
   },
   data() {
     return {
+      inputText:[],
       result: [],
       k: 1
     }
   },
+  mounted() {
+    for (let i = 0; i < 250; i++) {
+      let str=this.getValue(i);
+      this.inputText[i]=str;
+    }
+  },
   methods: {
-    handleInput(index, event) {
-      // 在这里处理输入，可以添加一些限制条件，例如最小字符数等
-      // 注意：这里只是示例，你可能需要根据实际需求修改
-      const newValue = event.target.value;
-      this.$set(this.points, index, { point: { ...this.points[index].point, time: newValue } });
+    getValue(index){
+      // 获取当前系统时间
+      const currentDate = new Date();
+      // 在时间上加上 index * 30 秒
+      currentDate.setSeconds(currentDate.getSeconds() + index * 30 - 86400);
+      // 将时间转换成字符串
+      const formattedDate = this.parseDate(currentDate);
+      return formattedDate;
+    },
+    parseDate(date) {
+      // 格式化日期为 "yyyy-MM-dd HH:mm:ss"
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    },
+    setValue(index, event) {
+      this.inputText[index]=event;
     },
     handleQuery() {
+      let l=this.points.length;
+      for(let j=0;j<l;j++){
+        this.points[j].point.time=this.inputText[j]
+      }
       let formData = {
         points: this.points.map(point => ({
           lat: point.point.lat,
