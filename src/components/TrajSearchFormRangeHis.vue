@@ -19,6 +19,7 @@
       <el-input v-model="timerange2"  type="text"></el-input>
     </el-form-item>
       <el-button class="btn" @click="clearTimeRange">Clear</el-button>
+
       <el-tooltip :disabled="!tooltipv" content="wrong date format">
         <el-button class="btn" type="primary" @click="handleQuery(this)" id="submit">
           <el-icon>
@@ -27,6 +28,14 @@
           Query
         </el-button>
       </el-tooltip>
+
+    <el-button class="btn" type="primary" @click="downloadResult" style="margin-left: 3px;">
+      <el-icon>
+        <Download />
+      </el-icon>
+      Download Result
+    </el-button>
+
   </el-form>
 </template>
 
@@ -102,11 +111,45 @@ export default {
       form: form,
       withTime: true,
       result: [],
+      qr:[],
       timerange1:'2023-05-20 08:00:00',
       timerange2:'2023-05-20 14:00:00'
     }
   },
   methods: {
+    downloadResult(){
+      let trips=this.qr.trips;
+      let txtContent = '';
+
+      trips.forEach((trip, index) => {
+        txtContent += `Trip ID: ${trip.tripid}\n`;
+        trip.points.forEach(point => {
+          txtContent += `Lat: ${point.lat}, Lng: ${point.lng}\n`;
+        });
+        txtContent += '\n';
+      });
+
+      // 创建一个Blob对象并生成URL
+      const blob = new Blob([txtContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+
+      // 创建一个<a>元素，并设置下载属性
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'trips.txt';
+
+      // 将<a>元素添加到DOM中
+      document.body.appendChild(a);
+
+      // 模拟用户点击下载链接
+      a.click();
+
+      // 移除<a>元素
+      document.body.removeChild(a);
+
+      // 释放Blob对象占用的资源
+      URL.revokeObjectURL(url);
+    },
     handleQuery: (that) => {
       let formData = {
         points: [],
@@ -129,6 +172,7 @@ export default {
           res.buses.push({
             id: 'EOF',
           });
+          that.qr=res
           that.$emit('receiveResult', res)
         }).catch(e => {
           console.error(e)

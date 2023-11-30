@@ -16,6 +16,14 @@
         </el-icon>
         Query
       </el-button>
+
+      <el-button class="btn" type="primary" @click="downloadResult">
+        <el-icon>
+          <Download />
+        </el-icon>
+        Download Result
+      </el-button>
+
     </el-form-item>
   </el-form>
 </template>
@@ -34,6 +42,7 @@ export default {
     return {
       inputText:[],
       result: [],
+      qr:[],
       k: 1
     }
   },
@@ -44,6 +53,43 @@ export default {
     }
   },
   methods: {
+    downloadResult(){
+      let sims=this.qr.buses;
+      let trips=this.qr.trips;
+      let txtContent = '';
+
+      let it=0;
+      trips.forEach((trip, index) => {
+        txtContent += `Trip ID: ${trip.tripid}\n`;
+        txtContent += `Similarity: ${sims[it].similarity}\n`;
+        it+=1;
+        trip.points.forEach(point => {
+          txtContent += `Lat: ${point.lat}, Lng: ${point.lng}\n`;
+        });
+        txtContent += '\n';
+      });
+
+      // 创建一个Blob对象并生成URL
+      const blob = new Blob([txtContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+
+      // 创建一个<a>元素，并设置下载属性
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'trips.txt';
+
+      // 将<a>元素添加到DOM中
+      document.body.appendChild(a);
+
+      // 模拟用户点击下载链接
+      a.click();
+
+      // 移除<a>元素
+      document.body.removeChild(a);
+
+      // 释放Blob对象占用的资源
+      URL.revokeObjectURL(url);
+    },
     getValue(index){
       // 获取当前系统时间
       const currentDate = new Date();
@@ -81,17 +127,14 @@ export default {
         k: this.k
       };
 
-      console.log("formData: ", formData);
-
       let result = searchTrajectory_Knn_history(formData);
 
-      console.log(result);
       result.then(res => {
-        console.log("form res: ", res);
         res.buses.push({
           id: 'EOF',
           similarity: 'EOF',
         });
+        this.qr=res;
         this.$emit('receiveResult', res);
       }).catch(e => {
         console.error(e);
